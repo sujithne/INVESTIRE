@@ -107,7 +107,7 @@ const {page,changePage,sName,changeSName}=props
         {
           investor: 'investor1',
           investment: '$10,000',
-          date: '04/04/2022'
+          date: '25/04/2022'
         },
         {
           investor: 'investor2',
