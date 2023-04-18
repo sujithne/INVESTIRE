@@ -17,11 +17,11 @@ const Ssuccess = (props) => {
     const a=extractVideoId(item.video)
    
   return (
-    <div style={{display:"flex",marginLeft:"50px",height:"200px",width:"100%",marginTop:"20px"}}>
+    <div style={{display:"flex",marginLeft:"3.5%",marginRight:'1.5%',height:"200px",width:"100%",marginTop:"20px"}}>
     <div  className=''>
           <h2>{item.startUpName}</h2>
-            <img src={"https://img.youtube.com/vi/"+a+"/hqdefault.jpg"} alt="YouTube Thumbnail" style={{ borderRadius:"20px 20px 20px 20px" ,height:"180px",width:"90%",transform:`translateY(7.5px)`,objectFit:'cover',imageRendering:'optimizeQuality'}}/>
-            <h3  style={{marginTop:"10px",width:"85%",textAlign:"center"}}>We got Funded with $10000 in 360 days</h3>
+            <img src={"https://img.youtube.com/vi/"+a+"/hqdefault.jpg"} alt="YouTube Thumbnail" style={{ borderRadius:"20px 20px 20px 20px" ,height:"180px",width:"93%",transform:`translateY(8.3px)`,objectFit:'cover',imageRendering:'optimizeQuality'}}/>
+            <h3  style={{marginTop:"10px",width:"93%",textAlign:"center"}}>We got Funded with $100000 in 60 days</h3>
          </div>
          
          

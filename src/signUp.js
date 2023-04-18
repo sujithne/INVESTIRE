@@ -27,14 +27,66 @@ function Login(props){
     password: '',
     confirmPassword:''
   });
+  const[passCheck,setPassCheck]=useState(1);
+  const[emailCheck,setEmailCheck]=useState(1);
+  
+    const [password, setPassword] = useState('');
+  
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+    const isLengthValid = password.length >= 8;
+  
+    const getValidationMessage = () => {
+      let message = '';
+  
+      if (!hasLowerCase) {
+        message += ' At least one lowercase letter';
+      }
+  
+      if (!hasUpperCase) {
+        message += ' At least one uppercase letter';
+      }
+  
+      if (!hasNumber) {
+        message += ' At least one number';
+      }
+  
+      if (!hasSpecialChar) {
+        message += ' At least one special character';
+      }
+  
+      if (!isLengthValid) {
+        message += ' Minimum length of 8 characters';
+      }
+  
+      return message;
+    };
 const handleChange = event => {
+  
+  if(event.target.name=='email'){
+    if(/\S+@\S+\.com+/.test(event.target.value))setEmailCheck(1);
+    else setEmailCheck(0);
+  }
+  if(event.target.name=='password'){
+    setPassword(event.target.value);
+  }
   if(isStartUp==true){
+    if(event.target.name=='confirmPassword'){
+      if(event.target.value!=formData1.password)setPassCheck(0);
+      else setPassCheck(1);
+    }
     setFormData1({
       ...formData1,
       [event.target.name]: event.target.value
     });
   }
   else{
+    if(event.target.name=='confirmPassword'){
+      if(event.target.value!=formData2.password)setPassCheck(0);
+      else setPassCheck(1);
+    }
     setFormData2({
       ...formData2,
       [event.target.name]: event.target.value
@@ -64,7 +116,7 @@ const handleChange = event => {
         <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto" style={{marginLeft:"50px"}}>
             <Link to='/home' onClick={() => setIsVisible(false)} className="nav-link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>Home</Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>SeekInvestment</Nav.Link>
+            {/* <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>SeekInvestment</Nav.Link> */}
             <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>FAQ's</Nav.Link>
            
           </Nav>
@@ -140,26 +192,38 @@ const handleChange = event => {
             onChange={handleChange}
             name="email"
           />
+          {emailCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid Email</p>:null}
+
         </div>
         <div className="mb-3">
           <label>Password</label>
           <input
             type="password"
+            title={getValidationMessage()}
             className="form-control"
             placeholder="Enter password"
             onChange={handleChange}
             name="password"
           />
+{password!='' && (!hasLowerCase ||
+        !hasUpperCase ||
+        !hasNumber ||
+        !hasSpecialChar ||
+        !isLengthValid )? (
+        <p style={{color:'red', marginTop:'1px'}}>Enter Strong Password</p>
+      ) : null}
           </div>
            <div className="mb-3">
           <label>Confirm Password</label>
           <input
             type="password"
             className="form-control"
-            placeholder="Enter password"
+            placeholder="Re-Enter password "
             onChange={handleChange}
             name="confirmPassword"
           />
+         {passCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
+
         </div>
        {p? <p style={{color:'red'}}>Password not matched</p>:null}
         <div className="d-grid">

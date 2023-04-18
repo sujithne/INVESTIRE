@@ -277,35 +277,12 @@ const cNames=[
   {name: 'Zambia', code: 'ZM'}, 
   {name: 'Zimbabwe', code: 'ZW'} 
 ]
+const mNames=["JAN",'FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 function SEdit(props) {
+  const {sData,changeSName}=props;
   const [thumbnailUrl, setThumbnailUrl] = useState('');
-  const [formData,setFormData]=useState({
-    email: 'sample@gmail.com',
-    password: '',
-    startUpName:'abc',
-    year:'',
-    vision:'',
-    description:'',
-    city:'',
-    state:'',
-    address1:'',
-    address2:'',
-    phNumber:'',
-    country:'',
-    category:'Finance',
-    productDescription:"We are the platform for investors and startups. ",
-    aboutFounders:'ABC , XYZ',
-    revenue:"$100,000",
-    monthlySales:{"jan":"321","feb":"432"},
-    yealyBreakUp:{"2020":"6789","2022":"6789"},
-    percentOffer:"",
-    totalValuation:"$1,000,000",
-    costPerBit:"",
-    time:"",
-    priorInvestment:"",
-    logo:"https://youtu.be/Nl-HyC9C7P0",
-    totalBits:"2000 Bits"
-  });
+  const [formData,setFormData]=useState(sData);
+  const iscb=formData.anyCashBurn=='Yes'?true:false;
   const footerScroll=()=>{
     window.scrollTo({
       top:document.body.scrollHeight,
@@ -314,11 +291,11 @@ function SEdit(props) {
   }
   const fetchData = async (a) => {
     console.log(a);
-    const videoId = extractVideoId(a);
+   
     console.log(formData.logo)
-    console.log(videoId)
+    
     const response =fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
+      `https://www.youtube.com/oembed?url=${formData.video}`
     ).then(response=>response.json()).then(data=>setThumbnailUrl(data.thumbnail_url));
   };
 useEffect(() => {
@@ -341,6 +318,31 @@ useEffect(() => {
                 [event.target.name]: URL.createObjectURL(event.target.value)
               });
               
+        }
+       else if(event.target.name=='year'){
+          const dp=event.target.value.split('-');
+          const dobj=new Date(dp[0],dp[1]-1,dp[2]);
+          const od= dobj.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+          console.log(od);
+          setFormData({
+            ...formData,
+            [event.target.name]: od
+          });
+        }
+        else if(event.target.name=='anyCashBurn'){
+          console.log(event.target.value);
+          if(formData.anyCashBurn=='Yes'){
+            setFormData({
+              ...formData,
+              [event.target.name]: 'No',cashBurn:0
+            });
+          }
+          else{
+            setFormData({
+              ...formData,
+              [event.target.name]: 'Yes'
+            });
+          }
         }
       else{
         setFormData({
@@ -365,7 +367,7 @@ useEffect(() => {
           <Toast ref={toast}></Toast>
           </div>
             <Nav.Link href="/shome" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>Home</Nav.Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>StartUps</Nav.Link>
+            <Nav.Link href="/startups" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>StartUps</Nav.Link>
             <Nav.Link style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={footerScroll}>FAQ's</Nav.Link>
            
           </Nav>
@@ -382,9 +384,15 @@ useEffect(() => {
           <Form.Control style={{opacity:0.8}} type="text" placeholder="Enter StartUp Name" value={formData.startUpName} onChange={handleChange} name="startUpName" />
         </Form.Group>
 
-        <Form.Group as={Col} controlId="formGridLastName">
-          <Form.Label>Date of Establishment</Form.Label>
-          <Form.Control style={{opacity:0.8}} type="date" placeholder="" value={formData.year} onChange={handleChange} name="year" />
+        <Form.Group as={Col} controlId="formGridDob">
+        <Form.Label>Date Of Establishment</Form.Label>
+        <InputGroup className='mb-3'>
+
+          
+          <Form.Control type="text" placeholder={formData.year?formData.year:'MM/DD/YYYY'} value={formData.year} onChange={handleChange} name="year1" style={{width:'84%'}}/>
+          <Form.Control type="date" format="MM/DD/YYYY" placeholder="MM/DD/YYYY" value={formData.year} onChange={handleChange} name="year" style={{width:'16%'}}/>
+
+          </InputGroup>
         </Form.Group>
         <Form.Group as={Col} controlId="formGridLastName">
           <Form.Label>Category</Form.Label>
@@ -416,17 +424,72 @@ useEffect(() => {
         <Form.Control as="textarea" placeholder="Add the Description" style={{height:"150px",opacity:0.8}} value={formData.description} onChange={handleChange} name="description" />
       </Form.Group>
       </Row >
-      <Row className='mb-3' >
-      <Form.Group as={Col} >
+      <Row style={{height:'200px'}}>
+        <Col md={4}>
+        <Form.Group >
         <Form.Label>About the Founders</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Founders Information" style={{height:"150px",opacity:0.8}} value={formData.aboutFounders} onChange={handleChange} name="aboutFounders"/>
       </Form.Group>
-      <Form.Group as={Col} >
+        </Col>
+        <Col md={5}> <Form.Group >
         <Form.Label>Product Description</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Product Description" style={{height:"150px",opacity:0.8}} value={formData.productDescription} onChange={handleChange} name="productDescription"/>
+      </Form.Group></Col>
+     
+      <Col md={3}>
+      <Row style={{width:'260px',marginTop:'5px' }}>
+      <Form.Group><Form.Label>Last 3 Months Revenue Details:</Form.Label>
+      <Row >
+      <Col>
+      <InputGroup style={{width:'250px'}}>
+      <Form.Select  style={{opacity:0.8}} 
+      onChange={handleChange}
+      name="m1" placeholder='select..'>
+        <option>{formData.last3MonthsRevenue[0].month?formData.last3MonthsRevenue[0].month:"choose.."}</option>
+        {mNames.map(e=>(
+          <option>{e}</option>
+        ))}
+    </Form.Select>
+      <InputGroup.Text>$</InputGroup.Text>
+      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[0].revenue} onChange={handleChange} name="r1" placeholder='Revenue'/>
+      </InputGroup>
+      </Col>
+      
+      <Col>
+      <InputGroup style={{width:'250px',marginTop:'10px'}}>
+      <Form.Select  style={{opacity:0.8}} 
+      onChange={handleChange}
+      name="m2" placeholder='select..'>
+        <option>{formData.last3MonthsRevenue[1].month?formData.last3MonthsRevenue[1].month:"choose.."}</option>
+        {mNames.map(e=>(
+          <option>{e}</option>
+        ))}
+    </Form.Select>
+      <InputGroup.Text>$</InputGroup.Text>
+      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[1].revenue} onChange={handleChange} name="r2" placeholder='Revenue'/>
+      </InputGroup>
+      </Col>
+      <Col>
+      <InputGroup style={{width:'250px',marginTop:'10px'}}>
+      <Form.Select  style={{opacity:0.8}} 
+      onChange={handleChange}
+      name="m3" placeholder='select..'>
+        <option>{formData.last3MonthsRevenue[2].month?formData.last3MonthsRevenue[2].month:"choose.."}</option>
+        {mNames.map(e=>(
+          <option>{e}</option>
+        ))}
+    </Form.Select>
+      <InputGroup.Text>$</InputGroup.Text>
+      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[2].revenue} onChange={handleChange} name="r3" placeholder='Revenue'/>
+      </InputGroup>
+      </Col>
+      </Row>
       </Form.Group>
+
+    </Row>
+      </Col>
       </Row >
-   
+      
       <Row className="mb-3">
       <FormGroup as={Col} controlId="">
       <Form.Label>TotalValuation</Form.Label>
@@ -443,7 +506,7 @@ useEffect(() => {
         </InputGroup>
         </FormGroup>
         <FormGroup as={Col} controlId="" >
-      <Form.Label>% Offering</Form.Label>
+      <Form.Label>Percentage Offering</Form.Label>
       <InputGroup>
           <Form.Control style={{opacity:0.8}}  type="number" value={formData.percentOffer} onChange={handleChange} name="percentOffer" placeholder=''/>
           <InputGroup.Text>%</InputGroup.Text>
@@ -468,6 +531,50 @@ useEffect(() => {
           <Form.Label>Email</Form.Label>
           <Form.Control style={{opacity:0.8}} type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
         </Form.Group>
+        
+      </Row>
+      <Row className="mb-3">
+      <FormGroup as={Col} controlId="">
+      <Form.Label>Gross Profits Percentage</Form.Label>
+      <InputGroup >
+          
+          <Form.Control style={{opacity:0.8}} type="number" value={formData.grossProfit} onChange={handleChange} name="grossProfit" placeholder='Gross Profits'/>
+          <InputGroup.Text>%</InputGroup.Text>
+        </InputGroup>
+        </FormGroup>
+        <FormGroup as={Col} controlId="">
+      <Form.Label>Net Profits Percentage</Form.Label>
+      <InputGroup >
+          
+          <Form.Control  style={{opacity:0.8}} type="number" value={formData.netProfit} onChange={handleChange} name="netProfit" placeholder='Net Profits'/>
+          <InputGroup.Text>%</InputGroup.Text>
+        </InputGroup>
+        </FormGroup>
+        <FormGroup as={Col} controlId="" >
+      <Form.Label>Any Cash Burn</Form.Label>
+      <InputGroup>
+      <InputGroup.Text><Form.Check type="switch" id="yes-no-switch" label={iscb?'Yes':'No'} onChange={handleChange} name="anyCashBurn" checked={iscb}/></InputGroup.Text>
+          <Form.Control style={{opacity:0.8}}  type="number" value={formData.cashBurn} onChange={handleChange} name="percentOffer" placeholder='' disabled={!iscb}/>
+          <InputGroup.Text>%</InputGroup.Text>
+        </InputGroup>
+        </FormGroup>
+        <FormGroup as={Col} controlId="" >
+      <Form.Label>Equity With Founders</Form.Label>
+      <InputGroup>
+      <Form.Control style={{opacity:0.8}}   type="number" value={formData.equityWithFounders} onChange={handleChange} name="equityWithFounders" placeholder='Equity Percent'/>
+      <InputGroup.Text>%</InputGroup.Text>
+      </InputGroup>
+        </FormGroup>
+        <FormGroup as={Col} controlId="" >
+      <Form.Label>Name Of The Bank</Form.Label>
+      <Form.Control style={{opacity:0.8}}   type="text" value={formData.bank} name="bank" placeholder='Bank Name'/>
+        </FormGroup>
+      
+        <FormGroup as={Col} controlId="" >
+      <Form.Label>Account Number</Form.Label>
+      <Form.Control style={{opacity:0.8}}   type="number" value={formData.bankAccount} name="bankAccount" placeholder='Bank Account'/>
+        </FormGroup>
+        
         
       </Row>
 <Row className="mb-3">
@@ -499,16 +606,16 @@ useEffect(() => {
           <Form.Select  style={{opacity:0.8}} 
       onChange={handleChange}
       name="country" placeholder='Enter Country'>
-        <option>choose..</option>
+        <option>{formData.country?formData.country:"choose.."}</option>
         {cNames.map(e=>(
           <option>{e.name}</option>
         ))}
     </Form.Select>
         </Form.Group>
       </Row>
+    
 
-
-      <Button variant="secondary" type="submit" style={{right:0}}>
+      <Button variant="secondary" type="submit" style={{float:'right'}}>
         Submit
       </Button>
     </Form>

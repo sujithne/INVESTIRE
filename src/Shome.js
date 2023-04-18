@@ -20,13 +20,12 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownToggle from 'react-bootstrap/esm/DropdownToggle';
 import { Form } from 'react-bootstrap';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-
 import Tab from 'react-bootstrap/Tab'
 import Col from 'react-bootstrap/Col';
 import {  Image, Card, Table } from 'react-bootstrap';
 import Row from 'react-bootstrap/Row';
 import ReactPlayer from 'react-player';
-
+import RealtimeGraph from './RealtimeGraph';
 function Shome(props) {
   
   const {page,changePage,sData}=props;
@@ -62,13 +61,60 @@ useEffect(() => {
     email: 'sample@gmail.com',
     password: '',
   });
+  
   const handleChange = event => {
+    if(event.target.name=='email'){
+      if(/\S+@\S+\.\S+/.test(event.target.value))setEmailCheck(1);
+      else setEmailCheck(0);
+    }
+    if(event.target.name=='password'){
+      setPassword(event.target.value);
+    }
+      if(event.target.name=='confirmPassword'){
+        if(event.target.value!=formData.password)setPassCheck(0);
+        else setPassCheck(1);
+      }
     setFormData({
       ...formData,
       [event.target.name]: event.target.value
     });
   };
-   
+  const[passCheck,setPassCheck]=useState(1);
+  const[emailCheck,setEmailCheck]=useState(1);
+  
+    const [password, setPassword] = useState('');
+  
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+    const isLengthValid = password.length >= 8;
+  
+    const getValidationMessage = () => {
+      let message = '';
+  
+      if (!hasLowerCase) {
+        message += ' At least one lowercase letter';
+      }
+  
+      if (!hasUpperCase) {
+        message += ' At least one uppercase letter';
+      }
+  
+      if (!hasNumber) {
+        message += ' At least one number';
+      }
+  
+      if (!hasSpecialChar) {
+        message += ' At least one special character';
+      }
+  
+      if (!isLengthValid) {
+        message += ' Minimum length of 8 characters';
+      }
+  
+      return message;
+    };
 
     const [isVisible, setIsVisible] = useState(false);
     const toast = useRef(null);
@@ -88,7 +134,7 @@ useEffect(() => {
           window.location.href = '#'
       }},
       {
-        label: 'Settings',
+        label: 'Profile',
         command:(e) => {
             window.location.href = '#'
         }}];
@@ -105,7 +151,7 @@ useEffect(() => {
           <Toast ref={toast}></Toast>
           </div>
             <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleStartUp}>StartUps</Nav.Link>
-            <Nav.Link href="/profile" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={changePage}>Settings</Nav.Link>
+            <Nav.Link href="/profile" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={changePage}>Update</Nav.Link>
             <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:"bold"}}>FAQ's</Nav.Link>
            
           </Nav>
@@ -123,18 +169,32 @@ useEffect(() => {
         <div >
         <Form style={{margin:'20px 20px'}} onSubmit={handleClick}>
        
-      <Row className="mb-3">
+      
         <Form.Group as={Col} controlId="formGridEmail">
           <Form.Label>Email</Form.Label>
           <Form.Control type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
+          {emailCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid Email</p>:null}
         </Form.Group>
 
-        <Form.Group as={Col} controlId="formGridPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" value={formData.password} onChange={handleChange} name="password" />
+        <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control type="password" placeholder="Password" title={getValidationMessage()} value={formData.password} onChange={handleChange} name="password" />
+          {password!='' && (!hasLowerCase ||
+        !hasUpperCase ||
+        !hasNumber ||
+        !hasSpecialChar ||
+        !isLengthValid )? (
+        <p style={{color:'red', marginTop:'1px'}}>Enter Valid Password</p>
+      ) : null}
         </Form.Group>
-      </Row>
-      <Button variant="secondary" type="submit">
+        <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
+          <Form.Label>Password</Form.Label>
+          <Form.Control type="password" placeholder="Confirm Password"  onChange={handleChange} name="confirmPassword" />
+          {passCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
+
+        </Form.Group>
+      
+      <Button variant="secondary" type="submit" style={{marginTop:'5px',marginBottom:'5px',float:'right'}}>
         Submit
       </Button>
     </Form>
@@ -151,63 +211,19 @@ useEffect(() => {
         
         <Col md={6}>
           <h1 style={{fontSize:"50px"}}>{sData.startUpName}</h1>
-          <p style={{fontSize:"25px"}}>{sData.vision}</p>
-          
-          <Button variant="success">Invest Now</Button>
+          <p>Required Investment Fund: <b>${(sData.percentOffer *sData.totalValuation)/100}</b></p>
+          <p>Current Investment :<b>$54500</b></p>
+          <p>Total Time Remaining: <b>{sData.time}</b></p>
+          <p>Current Bit Value: <b>${sData.costPerBit}</b></p>
         </Col>
+      <Col md={4}>  <h3 style={{marginLeft:'40%'}}>Real Time Funding</h3>
+      <RealtimeGraph style={{float:'right',top:1}}/></Col>
         
-        <Col md={6} >
-          <div style={{height:"300px",width:"600px",right:0,borderRadius:"50px 50px 50px 50px",overflow:'hidden',marginTop:"50px"}}>
-            <ReactPlayer url={sData.video} controls={true} width="600px" height="300px"  />
-           
-          </div>
-        </Col>
-      </Row>
-      <Tab.Container  id="left-tabs-example" defaultActiveKey="Description"  >
-      <Row style={{marginTop:"30px"}}>
-        <Col sm={3}>
-          <Nav variant="pills"  className="flex-column" > 
-            <Nav.Item >
-              <Nav.Link eventKey="Description" cla >Description</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="Revenue">Revenue</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="Investments">Investments</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="productDetails">productDetails</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="AboutFounders">About Founders</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="LocationDetails">Location Details</Nav.Link>
-            </Nav.Item>
-          </Nav>
-        </Col>
-        <Col sm={9} >
-          <Tab.Content>
-            <Tab.Pane eventKey="Description">
-              <h3>{sData.description}</h3>
-            </Tab.Pane>
-            <Tab.Pane eventKey="Revenue">
-              <h2>Total Revenue: ${sData.revenue}</h2>
-              <p>Details of revenue in last 3 Months:</p>
-              <BarChart width={500} height={300} data={sData.last3MonthsRevenue} style={{float:"right"}}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                   <Tooltip />
-                <Legend />
-                 <Bar dataKey="revenue" fill="#8884d8" />
-             </BarChart>
-            </Tab.Pane>
-            <Tab.Pane eventKey="Investments">
-            <div style={{ overflow: 'auto', height: '400px' }}>
-      <Table striped bordered hover>
-        <thead>
+
+        <h2 style={{marginTop:'20px'}}>Recent Fundings</h2>
+            <div style={{ overflow: 'auto', height: '200px' }}>
+        <Table striped bordered hover >
+        <thead style={{position:'sticky',top:0,backgroundColor:'grey',color:'Black'}}>
           <tr>
             <th>Investor</th>
             <th>Investment</th>
@@ -224,14 +240,100 @@ useEffect(() => {
           ))}
         </tbody>
       </Table>
-    </div>
+      </div>
+      <h2 style={{marginTop:'30px'}}>Top 10 Fundings</h2>
+      <Table striped bordered hover style={{marginLeft:'15px',width:'98%'}}>
+        <thead style={{backgroundColor:'grey'}}>
+          <tr>
+            <th>Investor</th>
+            <th>Investment</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sData.investors.sort((a,b)=>{const A=Number(a.investment.replace(/[^0-9.-]+/g,""));
+                                        const B=Number(b.investment.replace(/[^0-9.-]+/g,""));
+                                        return B-A;}).map((item, index) => (
+            <tr key={index}>
+              <td>{item.investor}</td>
+              <td>{item.investment}</td>
+              <td>{item.date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+        
+      </Row>
+      <Tab.Container  id="left-tabs-example" defaultActiveKey="Description"  >
+      <Row style={{marginTop:"30px"}}>
+        
+          <Nav variant="tabs"  > 
+            <Nav.Item >
+              <Nav.Link eventKey="Description" cla style={{color:'black',fontWeight:'bold'}}>Description</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="Revenue" style={{color:'black',fontWeight:'bold'}}>Revenue</Nav.Link>
+            </Nav.Item>
+            
+            <Nav.Item>
+              <Nav.Link eventKey="productDetails" style={{color:'black',fontWeight:'bold'}}>productDetails</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="AboutFounders" style={{color:'black',fontWeight:'bold'}}>About Founders</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="LocationDetails" style={{color:'black',fontWeight:'bold'}}>Location Details</Nav.Link>
+            </Nav.Item>
+          </Nav>
+       </Row>
+        <Row style={{marginTop:'20px',height:"400px"}}>
+          <Tab.Content>
+            <Tab.Pane eventKey="Description">
+            <p style={{fontSize:'22px'}}>{sData.description}</p>
             </Tab.Pane>
-            <Tab.Pane eventKey="second">
+            <Tab.Pane eventKey="Revenue">
+              <div>
+                <div>
+              <h2>Total Revenue: ${sData.revenue}</h2>
+              <p>Details of revenue in last 3 Months:</p>
+              <BarChart width={500} height={300} data={sData.last3MonthsRevenue} style={{float:"left"}}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                   <Tooltip />
+                   <Legend verticalAlign="top" align="right" />
+                 <Bar dataKey="revenue" fill="#8884d8" />
+             </BarChart>
+             </div>
+             <div>
+             <h3>Profit Details:</h3>
+             <p style={{fontSize:'22px'}}><b>Gross Profits Percentage:</b> {sData.grossProfit}%</p>
+             <p style={{fontSize:'22px'}}><b>Net Profits Percentage:</b> {sData.netProfit}%</p>
+             {sData.anyCashBurn=='Yes'?<p style={{fontSize:'22px'}}><b>Cash Burn Percentage Per Month:</b> {sData.cashBurn}%</p>:null}
+             </div>
+             </div>
+            </Tab.Pane>
+            
+            <Tab.Pane eventKey="productDetails">
+              <p style={{fontSize:'22px'}}>{sData.productDescription}</p>
+            </Tab.Pane>
+            
+            <Tab.Pane eventKey="AboutFounders">
+              <p style={{fontSize:'22px'}}>{sData.aboutFounders}</p>
+            </Tab.Pane>
+            <Tab.Pane eventKey="LocationDetails">
               
+              <p style={{fontSize:'22px'}}><b>Address1:</b> {sData.address1}</p>
+              <p style={{fontSize:'22px'}}><b>Address2:</b> {sData.address2}</p>
+              <p style={{fontSize:'22px'}}><b>City:</b> {sData.city}</p>
+              <p style={{fontSize:'22px'}}><b>State:</b> {sData.state}</p>
+              <p style={{fontSize:'22px'}}><b>Country:</b> {sData.country}</p>
+
+
             </Tab.Pane>
           </Tab.Content>
-        </Col>
-      </Row>
+        </Row>
+      
     </Tab.Container>
   </Container>
   

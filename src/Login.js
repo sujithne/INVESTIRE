@@ -9,12 +9,15 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 function Login(props){
   const {page,changePage}=props;
   const [isVisible, setIsVisible] = useState(true);
+
   const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
       email: 'hi man',
       password: ''
     });
   const handleChange = event => {
+    
       setFormData({
         ...formData,
         [event.target.name]: event.target.value
@@ -40,7 +43,7 @@ function Login(props){
         <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto" style={{marginLeft:"50px"}}>
             <Link to='/home' onClick={() => setIsVisible(false)} className="nav-link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>Home</Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>SeekInvestment</Nav.Link>
+            {/* <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>SeekInvestment</Nav.Link> */}
             <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>FAQ's</Nav.Link>
            
           </Nav>
@@ -65,6 +68,7 @@ function Login(props){
             onChange={handleChange}
             name="email"
           />
+
         </div>
         <div className="mb-3">
           <label>Password</label>
@@ -76,6 +80,7 @@ function Login(props){
             name="password"
           />
         </div>
+        
         <div className="mb-3">
           <div className="custom-control custom-checkbox">
             <input
