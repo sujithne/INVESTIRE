@@ -782,7 +782,10 @@ public class Controller {
             message2.setText("Congratulations on New Investment!! \n\n I am pleased to inform you that our Investire project has successfully secured funding for your startup. We are thrilled to have had the opportunity to bring together a group of investors who share our enthusiasm for your business and believe in your vision.. \n\n Find the details of the new investment below \n\n Investor Email "+investorEmail+"\n No of Bits:  "+bits+"\n\nInvestment Amount:  $ "+amount+"\n We are proud to be a part of your journey and look forward to seeing your startup thrive in the years to come.\n\n\n Best Regards \n \n Investire");
             mailSender.send(message2);
             return (res);
-        } catch (Exception e) {
+        } catch(MailSendException e){
+            res.setMessage("success");
+            return(res);
+        }catch (Exception e) {
             res.setMessage("Fail");
             return (res);
         }
