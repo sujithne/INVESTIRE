@@ -13,6 +13,7 @@ import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.Column;
@@ -785,7 +786,8 @@ public class Controller {
         } catch(MailSendException e){
             res.setMessage("success");
             return(res);
-        }catch (Exception e) {
+        }
+        catch (Exception e) {
             res.setMessage("Fail");
             return (res);
         }
@@ -819,7 +821,7 @@ public class Controller {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user);
             message.setSubject("OTP Verification");
-            message.setText("Your OTP is: " + otp);
+            message.setText("Welcome To Investire \n\n Thank You For Creating New Account with Us!! \n\n  Your OTP is for Registration Is: " + otp);
 
             mailSender.send(message);
             return res;
@@ -849,7 +851,7 @@ public class Controller {
                 s.setStartUpName(row.get("StartupName") != null ? row.get("StartupName").toString() : "");
                 s.setVideo(row.get("video") != null ? row.get("video").toString() : "");
                 s.setFund(d.get(0).get("totalAmount") != null ? (Double) d.get(0).get("totalAmount") : 0.0);
-                s.setTime(d.get(0).get("dateDifference") != null ? (int) d.get(0).get("dateDifference") : 0);
+                s.setTime(d.get(0).get("dateDifference") != null ? Long.parseLong(d.get(0).get("dateDifference").toString()) : 0);
                 lis.add(s);
             }
 
