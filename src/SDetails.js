@@ -29,8 +29,14 @@ import ReactPlayer from 'react-player';
 
 function SDetails(props) {
   
-  const {page,changePage,sData}=props;
+  const {page,changePage,sData,startUp}=props;
   console.log(sData);
+  console.log(sData.time);
+  const d1=new Date(sData.time);
+  const d2=new Date();
+  const diff=(d1.getTime()-d2.getTime());
+  const days=Math.ceil(diff/(1000*3600*24));
+  console.log(days);
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const fetchData = async (a) => {
     console.log(a);
@@ -81,7 +87,56 @@ useEffect(() => {
     const handleStartUp = () => {
       navigate('/startUps');
     };
-  
+    const handleInvest = () => {
+      console.log("startUp  "+startUp);
+      if(startUp!=""){
+        alert("startUp cannot Invest!,Login as Investor...");
+        navigate('/startUps');
+      }
+      else{
+      navigate('/payment');
+    }
+    };
+    const [recentInvestors,setRecent]=useState([])
+    useEffect(()=>{
+    const fetchInvestments= async ()=>{
+      try {
+        const response = await fetch('http://52.207.171.26:8081/api/recentInvestments/'+sData.email,{
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log(response);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.indexOf('application/json') !== -1) {
+            const json = await response.json();
+            setRecent(json);
+            console.log(json);
+          } 
+      } catch (error) {
+        console.error(error);
+      }
+      
+    }
+    fetchInvestments();
+    },[]);
+    const footerScroll=()=>{
+      window.scrollTo({
+        top:document.body.scrollHeight,
+        behavior:"smooth"
+      });
+    }
+    function navigateToGmail() {
+      const gmailUrl = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to='+sData.email;
+      const gmailWindow = window.open(gmailUrl, '_blank');
+      gmailWindow.focus();
+      
+    }
   return (
     <div>
     <header style={{backgroundColor:"grey",borderRadius:"0px 0px 0px 50px",position:'fixed',width:"100%", top:0,overflow:"hidden",zIndex:1}} >
@@ -94,8 +149,8 @@ useEffect(() => {
           <div >
           <Toast ref={toast}></Toast>
           </div>
-            <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleStartUp}>StartUps</Nav.Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:"bold"}}>FAQ's</Nav.Link>
+            <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleStartUp}><i className="pi pi-discord" style={{ color: '#708090' }}></i> StartUps</Nav.Link>
+            <Nav.Link  style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={footerScroll}>FAQ's</Nav.Link>
            
           </Nav>
           
@@ -111,10 +166,14 @@ useEffect(() => {
           <h1 style={{fontSize:"50px"}}>{sData.startUpName}</h1>
           <p style={{fontSize:"25px"}}>{sData.vision}</p>
           
-          <p>Total Time Remaining: <b>{sData.time}</b></p>
-          <p>Current Bit Value: <b>${sData.costPerBit}</b></p>
-          <Button variant="success">Invest Now</Button>
+           <p>Total Time Remaining: {days>=0? days==0?<b>Last Day</b>:<b>{days} {days===1?"day":"days"}</b>:<b style={{color:"red"}}>Investment Time Completed</b>}</p>
+          <p>Current Bit Value: <b title= "Bit value is the(Total valuation * % of startup offering)/(100 * Number of bits)">${sData.costPerBit}</b></p>
+          <p>Having any queries? Please <Button variant="danger" onClick={navigateToGmail}><i className="pi pi-envelope" style={{ color: 'white' }}></i> Click Here</Button></p>
+          <Button variant="success" disabled={days<0} onClick={handleInvest}>Invest Now</Button>
+          
+          
         </Col>
+        
         
         <Col md={6} >
           <div style={{height:"300px",width:"600px",right:0,borderRadius:"50px 50px 50px 50px",overflow:'hidden',marginTop:"50px"}}>
@@ -176,24 +235,7 @@ useEffect(() => {
             </Tab.Pane>
             <Tab.Pane eventKey="Investments">
             <div style={{ overflow: 'auto', height: '400px' }}>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Investor</th>
-            <th>Investment</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sData.investors.map((item, index) => (
-            <tr key={index}>
-              <td>{item.investor}</td>
-              <td>{item.investment}</td>
-              <td>{item.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      {sData.priorInvestment}
     </div>
             </Tab.Pane>
             <Tab.Pane eventKey="productDetails">
