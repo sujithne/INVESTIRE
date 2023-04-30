@@ -20,17 +20,26 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownToggle from 'react-bootstrap/esm/DropdownToggle';
 import { Form } from 'react-bootstrap';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+
 import Tab from 'react-bootstrap/Tab'
 import Col from 'react-bootstrap/Col';
 import {  Image, Card, Table } from 'react-bootstrap';
 import Row from 'react-bootstrap/Row';
 import ReactPlayer from 'react-player';
 import RealtimeGraph from './RealtimeGraph';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 function Shome(props) {
   
-  const {page,changePage,sData}=props;
+  const {page,changePage,sData,changeSName,startUp,changeStartUp}=props;
   console.log(sData);
+  const d1=new Date(sData.time);
+  const d2=new Date();
+  const diff=(d1.getTime()-d2.getTime());
+  const days=Math.ceil(diff/(1000*3600*24));
   const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [investment,setInvestment]=useState([])
+  const [recentInvestors,setRecent]=useState([])
+  const [fund,setFund]=useState("");
   const fetchData = async (a) => {
     console.log(a);
     const videoId = extractVideoId(a);
@@ -48,9 +57,107 @@ function Shome(props) {
   
     return match && match[2].length === 11 ? match[2] : null;
   }
+  const [error, setError] = useState(null);
+  const [data,setData]=useState();
+  const fetchStartUpData = async () => {
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/totalFund/'+startUp);
+      const data = await response.text();
+      setData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/getStartUp/'+startUp,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          console.log(json)
+         changeSName(json)
+         console.log(sData);
+          
+
+          setError(null);
+        } else {
+          const text = await response.text();
+          
+          setError(null);
+        }
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/top10investments/'+startUp,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          setInvestment(json);
+          console.log(json);
+        } 
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/recentInvestments/'+startUp,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          setRecent(json);
+          console.log(json);
+        } 
+    } catch (error) {
+      console.error(error);
+    }
+    
+  };
+
 useEffect(() => {
-  fetchData(sData.video);
+  
+  fetchStartUpData();
+ 
 }, []);
+
+const handle=()=>{
+  fetchData(sData.video);
+  const response = fetch('http://52.207.171.26:8081/api/user/updateStartUp/Avinash@gmail.com',{
+          method: 'PUT',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(sData)
+        });
+}
   const priorInvestors=[{name:"i1",investment:30},{name:"i2",investment:40}]
   
   const [show, setShow] = useState(false);
@@ -58,10 +165,13 @@ useEffect(() => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [formData,setFormData]=useState({
-    email: 'sample@gmail.com',
+    email: '',
     password: '',
   });
-  
+  const [passMsg,setPassMsg]=useState('');
+  const handleCurrentPass=(e)=>{
+    setPassMsg(e.target.value)
+  }
   const handleChange = event => {
     if(event.target.name=='email'){
       if(/\S+@\S+\.\S+/.test(event.target.value))setEmailCheck(1);
@@ -79,7 +189,7 @@ useEffect(() => {
       [event.target.name]: event.target.value
     });
   };
-  const[passCheck,setPassCheck]=useState(1);
+  const[passCheck,setPassCheck]=useState(0);
   const[emailCheck,setEmailCheck]=useState(1);
   
     const [password, setPassword] = useState('');
@@ -125,8 +235,17 @@ useEffect(() => {
     };
     const handleStartUp = () => {
       changePage("shome");
+      changeSName(sData);
       navigate('/startUps');
     };
+    const handleProfile=()=>{
+      changeSName(sData);
+      navigate("/profile");
+    }
+    const handleRefresh=()=>{
+      
+      fetchStartUpData();
+    }
     const items = [{
       label: 'MyInvestments',
       icon: 'pi pi-refresh',
@@ -138,6 +257,64 @@ useEffect(() => {
         command:(e) => {
             window.location.href = '#'
         }}];
+        const [val,setVal]=useState("Submit");
+        const [err,setErr]=useState("");
+        const handleSubmit=async()=>{
+          if(formData.password==formData.confirmPassword){
+          setVal("saving...");
+          
+          try {
+            const response = await fetch('http://52.207.171.26:8081/api/user/updatePassword/'+startUp+"?password="+formData.password,{
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                
+              });
+              console.log(response);
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              const contentType = response.headers.get('content-type');
+              if (contentType && contentType.indexOf('application/json') !== -1) {
+                const text = await response.json();
+                if(text.message=="success"){
+                  setVal("Submit");
+                  setShow(false);
+                  setErr("")
+                  setPassMsg("")
+                  setFormData({
+                    email: '',
+                    password: '',
+                  });
+                  setPassword("");
+                  alert("Password Changed Successfully!!!")
+                  navigate("/shome");
+              } 
+                else{
+                  setVal("Submit")
+                  setErr(text.message);
+                }
+                
+              }
+          } catch (error) {
+            setVal("Submit")
+                  setErr("Network error");
+            console.error(error);
+          }
+        }
+        else{
+          setErr("Password and ConfirmPassword are not Matched...")
+        }
+          
+        };
+        const footerScroll=()=>{
+          window.scrollTo({
+            top:document.body.scrollHeight,
+            behavior:"smooth"
+          });
+        }
   return (
     <div>
     <header style={{backgroundColor:"grey",borderRadius:"0px 0px 0px 50px",position:'fixed',width:"100%", top:0,overflow:"hidden",zIndex:1}} >
@@ -150,9 +327,9 @@ useEffect(() => {
           <div >
           <Toast ref={toast}></Toast>
           </div>
-            <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleStartUp}>StartUps</Nav.Link>
-            <Nav.Link href="/profile" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={changePage}>Update</Nav.Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:"bold"}}>FAQ's</Nav.Link>
+            <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleStartUp}><i className="pi pi-discord" style={{ color: '#708090' }}></i> StartUps</Nav.Link>
+            <Nav.Link style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={handleProfile}><i className="pi pi-pencil" style={{ color: '#708090' }}></i> MyDetails</Nav.Link>
+            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:"bold"}} onClick={footerScroll}>FAQ's</Nav.Link>
            
           </Nav>
           <>
@@ -167,37 +344,41 @@ useEffect(() => {
           <Modal.Title>Change Password</Modal.Title>
         </Modal.Header>
         <div >
-        <Form style={{margin:'20px 20px'}} onSubmit={handleClick}>
+        <div style={{margin:'20px 20px'}} >
        
       
         <Form.Group as={Col} controlId="formGridEmail">
           <Form.Label>Email</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
+          <Form.Control type="email" readOnly="readOnly" placeholder="Enter email" value={sData.email} onChange={handleChange} />
           {emailCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid Email</p>:null}
         </Form.Group>
-
+        <Form.Group as={Col} controlId="currentPassword" style={{marginTop:'10px'}}>
+          <Form.Label>Current Password</Form.Label>
+          <Form.Control type="password" placeholder="Enter Current Password" title={getValidationMessage()} value={passMsg} onChange={handleCurrentPass} name="currentPassword" />
+          {passMsg!=sData.password&&passMsg!=""? <p style={{color:'red', marginTop:'1px'}}>Password Not Matched </p>: null}
+      </Form.Group>
         <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" title={getValidationMessage()} value={formData.password} onChange={handleChange} name="password" />
+          <Form.Label>New Password</Form.Label>
+          <Form.Control type="password" disabled={passMsg!=sData.password} placeholder=" Enter New Password" title={getValidationMessage()} value={formData.password} onChange={handleChange} name="password" />
           {password!='' && (!hasLowerCase ||
         !hasUpperCase ||
         !hasNumber ||
         !hasSpecialChar ||
         !isLengthValid )? (
-        <p style={{color:'red', marginTop:'1px'}}>Enter Valid Password</p>
+        <p style={{color:'red', marginTop:'1px'}}>Password is too weak</p>
       ) : null}
         </Form.Group>
         <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Confirm Password"  onChange={handleChange} name="confirmPassword" />
-          {passCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control type="password" disabled={passMsg!=sData.password} placeholder="Confirm Password"  onChange={handleChange} name="confirmPassword" />
+          {passCheck==0&&password!=""?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
 
         </Form.Group>
-      
-      <Button variant="secondary" type="submit" style={{marginTop:'5px',marginBottom:'5px',float:'right'}}>
-        Submit
-      </Button>
-    </Form>
+        <Button  disabled={passMsg!=sData.password ||passCheck==0 ||password==""}  className="nav-link"  onClick={handleSubmit} style={{WebkitTextFillColor:'white',margin:'10px',width:'100px',height:'35px',backgroundColor:'green',WebkitTextFillColor:'white',border:'white',borderRadius:'5px',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold',float:"right"}}>{val}</Button>
+
+        {err!=""?<p style={{color:"red"}}>{err}</p>:null}
+    </div>
+    
         </div>
       </Modal>
       </>
@@ -212,52 +393,59 @@ useEffect(() => {
         <Col md={6}>
           <h1 style={{fontSize:"50px"}}>{sData.startUpName}</h1>
           <p>Required Investment Fund: <b>${(sData.percentOffer *sData.totalValuation)/100}</b></p>
-          <p>Current Investment :<b>$54500</b></p>
-          <p>Total Time Remaining: <b>{sData.time}</b></p>
-          <p>Current Bit Value: <b>${sData.costPerBit}</b></p>
+          <p>Total Time Remaining: {days>=0? <b>{days} {days===1?"day":"days"}</b>:<b style={{color:"red"}}>Investment Time Completed</b>}</p>
+          <p>Current Bit Value: <b title= "Bit value is the(Total valuation * % of startup offering)/(100 * Number of bits)">${sData.costPerBit}</b></p>
+          <p>Percentage of Investments Secured: <b style={{color:'green'}}>{((data/(sData.percentOffer*sData.totalValuation))*10000).toFixed(1)}%</b> </p>
+          <Button onClick={handleRefresh}>Refresh <i className="pi pi-spin pi-refresh" style={{ fontSize: '1rem',color:'white' }} onClick={handleShow}></i></Button>
         </Col>
-      <Col md={4}>  <h3 style={{marginLeft:'40%'}}>Real Time Funding</h3>
-      <RealtimeGraph style={{float:'right',top:1}}/></Col>
+      <Col md={4}>  <h3 style={{marginLeft:'40%'}}>Real Time Investments</h3>
+      <RealtimeGraph style={{float:'right',top:1}} startUp={startUp} fund={fund}/></Col>
         
 
-        <h2 style={{marginTop:'20px'}}>Recent Fundings</h2>
+        <h2 style={{marginTop:'-40px'}}>Recent Investments</h2>
             <div style={{ overflow: 'auto', height: '200px' }}>
         <Table striped bordered hover >
         <thead style={{position:'sticky',top:0,backgroundColor:'grey',color:'Black'}}>
           <tr>
-            <th>Investor</th>
+          <th>Investor</th>
+            <th>Investor Email</th>
             <th>Investment</th>
             <th>Date</th>
+            <th>Time</th>
           </tr>
         </thead>
         <tbody>
-          {sData.investors.map((item, index) => (
+          {recentInvestors.map((item, index) => (
             <tr key={index}>
-              <td>{item.investor}</td>
+               <td>{item.investor}</td>
+              <td>{item.investorEmail}</td>
               <td>{item.investment}</td>
               <td>{item.date}</td>
+              <td>{item.time}</td>
             </tr>
           ))}
         </tbody>
       </Table>
       </div>
-      <h2 style={{marginTop:'30px'}}>Top 10 Fundings</h2>
+      <h2 style={{marginTop:'30px'}}>Top 10 Investments</h2>
       <Table striped bordered hover style={{marginLeft:'15px',width:'98%'}}>
         <thead style={{backgroundColor:'grey'}}>
           <tr>
             <th>Investor</th>
+            <th>Investor Email</th>
             <th>Investment</th>
             <th>Date</th>
+            <th>Time</th>
           </tr>
         </thead>
         <tbody>
-          {sData.investors.sort((a,b)=>{const A=Number(a.investment.replace(/[^0-9.-]+/g,""));
-                                        const B=Number(b.investment.replace(/[^0-9.-]+/g,""));
-                                        return B-A;}).map((item, index) => (
+          {investment.map((item, index) => (
             <tr key={index}>
               <td>{item.investor}</td>
+              <td>{item.investorEmail}</td>
               <td>{item.investment}</td>
               <td>{item.date}</td>
+              <td>{item.time}</td>
             </tr>
           ))}
         </tbody>
