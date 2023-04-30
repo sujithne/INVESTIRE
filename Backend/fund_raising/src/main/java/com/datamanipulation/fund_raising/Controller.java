@@ -851,7 +851,7 @@ public class Controller {
                 s.setStartUpName(row.get("StartupName") != null ? row.get("StartupName").toString() : "");
                 s.setVideo(row.get("video") != null ? row.get("video").toString() : "");
                 s.setFund(d.get(0).get("totalAmount") != null ? (Double) d.get(0).get("totalAmount") : 0.0);
-                s.setTime(d.get(0).get("dateDifference") != null ? Long.parseLong(d.get(0).get("dateDifference").toString()) : 0);
+                s.setTime(Math.toIntExact(d.get(0).get("dateDifference") != null ? Long.parseLong(d.get(0).get("dateDifference").toString()) : 0));
                 lis.add(s);
             }
 
