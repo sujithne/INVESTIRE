@@ -22,7 +22,7 @@ import { InputText } from "primereact/inputtext";
 import InputGroup from 'react-bootstrap/InputGroup';
 // import CountrySelect from 'react-bootstrap-country-select';
 import Col from 'react-bootstrap/Col';
-
+import { Tooltip } from 'primereact/tooltip';
 import Row from 'react-bootstrap/Row';
 
 
@@ -289,46 +289,86 @@ function SEdit(props) {
       behavior:"smooth"
     });
   }
+  const [status,setStatus]=useState('Submit');
   const fetchData = async (a) => {
     console.log(a);
    
-    console.log(formData.logo)
+    
     
     const response =fetch(
-      `https://www.youtube.com/oembed?url=${formData.video}`
+      `https://www.youtube.com/oembed?url=${a}`
     ).then(response=>response.json()).then(data=>setThumbnailUrl(data.thumbnail_url));
   };
+  const [error, setError] = useState(null);
+
 useEffect(() => {
-  fetchData(formData.logo);
+  fetchData(formData.video);
 }, []);
     const {page,changePage}=props;
     const [isVisible, setIsVisible] = useState(false);
     const toast = useRef(null);
     const navigate=useNavigate();
-    const handleClick = () => {
-      changePage("home");
-      navigate('/home');
+    const handleSubmit= async()=>{
+      setStatus("Saving...")
+      try {
+        const response = await fetch('http://52.207.171.26:8081/api/user/updateStartUp/'+sData.email,{
+            method: 'PUT',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+          console.log(response);
+          if (!response.ok) {
+            setStatus("Submit")
+            setError("Check the Network and Save Again...")
+            throw new Error('Network response was not ok');
+          }
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.indexOf('application/json') !== -1) {
+            const json = await response.json();
+           
+            console.log(json);
+  
+            setError(null);
+          } else {
+            const text = await response.text();
+            console.log(text);
+            navigate("/shome");
+            setError(null);
+          }
+      } catch (error) {
+        setError(error);
+        setStatus("Submit")
+        console.error(error);
+      }
+      
     };
+    const handleHome=()=>{
+      changeSName(sData);
+      navigate("/shome");
+    }
    
       const handleChange = event => {
-        if(event.target.name=="logo"){
+        
+        if(event.target.name=="video"){
           fetchData(event.target.value);
             setFormData({
                 ...formData,
-                [event.target.name]: URL.createObjectURL(event.target.value)
+                [event.target.name]: event.target.value
               });
               
+          }
+
+
+        if(event.target.name=="costPerBit"){
+            setFormData({
+                ...formData,
+                [event.target.name]: (formData.totalValuation / (formData.totalBits * formData.percentOffer)).toFixed(2)
+              });
         }
-       else if(event.target.name=='year'){
-          const dp=event.target.value.split('-');
-          const dobj=new Date(dp[0],dp[1]-1,dp[2]);
-          const od= dobj.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
-          console.log(od);
-          setFormData({
-            ...formData,
-            [event.target.name]: od
-          });
-        }
+      
         else if(event.target.name=='anyCashBurn'){
           console.log(event.target.value);
           if(formData.anyCashBurn=='Yes'){
@@ -347,16 +387,25 @@ useEffect(() => {
       else{
         setFormData({
           ...formData,
-          [event.target.name]: event.target.value
+            [event.target.name]: event.target.value
         });
     }
-      };
+    };
         const [set,changeSet]=useState(false);
-      
+        const handleClick = () => {
+          changePage("home");
+          navigate('/home');
+        };
+        const handleStartUp = () => {
+          navigate('/startUps');
+        };
+  const isFuture=(d)=>{
+    return d.getTime()>new Date().getTime();
+  }
   return (
     <div>
     
-    <header style={{backgroundColor:"grey",borderRadius:"0px 0px 0px 50px",position:'fixed',width:"100%", top:0,overflow:"hidden",zIndex:1}} >
+    <header style={{backgroundColor:"grey",borderRadius:"0px 0px 0px 50px",position:'fixed',width:"100%", top:0,overflow:"hidden",zIndex:100}} >
     <Navbar expand="lg" bg="dark" style={{borderRadius:"0px 0px 0px 200px",height:"100px"}}>
     <Container style={{marginLeft:"40px"}}>
       <h2 style={{WebkitTextFillColor:'white',fontWeight:'bold',marginTop:"11px",fontFamily:"calibri",fontSize:"40px"}}>INVESTIRE</h2>
@@ -366,8 +415,8 @@ useEffect(() => {
           <div >
           <Toast ref={toast}></Toast>
           </div>
-            <Nav.Link href="/shome" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>Home</Nav.Link>
-            <Nav.Link href="/startups" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>StartUps</Nav.Link>
+            <Nav.Link onClick={handleHome} style={{WebkitTextFillColor:'white',fontWeight:'bold'}}><i className="pi pi-home" style={{ color: '#708090' }}></i> Home</Nav.Link>
+            <Nav.Link onClick={handleStartUp} style={{WebkitTextFillColor:'white',fontWeight:'bold'}}><i className="pi pi-discord" style={{ color: '#708090' }}></i> StartUps</Nav.Link>
             <Nav.Link style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={footerScroll}>FAQ's</Nav.Link>
            
           </Nav>
@@ -377,34 +426,48 @@ useEffect(() => {
     </Navbar>
 </header>
     <div style={{marginTop:"130px"}} >
-        <Form style={{margin:'20px 20px'}} onSubmit={handleClick}>
-        <Row className="mb-3">
+        <Form style={{margin:'20px 20px'}} >
+          <h1>Basic Details</h1>
+          <div style={{marginTop:"30px",backgroundColor:"lightGrey",borderRadius:"10PX 10PX 10PX 10PX",height:"570px"}}>
+
+        <Row className="mb-3"  style={{marginTop:"30px",marginRight:"10px",marginLeft:"10PX"}}>
         <Form.Group as={Col} controlId="formGridFirstName">
           <Form.Label>StartUp Name</Form.Label>
           <Form.Control style={{opacity:0.8}} type="text" placeholder="Enter StartUp Name" value={formData.startUpName} onChange={handleChange} name="startUpName" />
         </Form.Group>
 
         <Form.Group as={Col} controlId="formGridDob">
-        <Form.Label>Date Of Establishment</Form.Label>
+        <Form.Label>Established on</Form.Label>
         <InputGroup className='mb-3'>
 
           
-          <Form.Control type="text" placeholder={formData.year?formData.year:'MM/DD/YYYY'} value={formData.year} onChange={handleChange} name="year1" style={{width:'84%'}}/>
-          <Form.Control type="date" format="MM/DD/YYYY" placeholder="MM/DD/YYYY" value={formData.year} onChange={handleChange} name="year" style={{width:'16%'}}/>
+          <Form.Control type="date" format="MM/DD/YYYY" placeholder="MM/DD/YYYY" value={formData.year} onChange={handleChange} name="year" style={{width:'100%'}}/>
 
           </InputGroup>
         </Form.Group>
-        <Form.Group as={Col} controlId="formGridLastName">
+        <Form.Group as={Col} controlId="formGridLastName" title="Select a category to which the your startup belong to.">
           <Form.Label>Category</Form.Label>
-          <Form.Select style={{opacity:0.8}} defaultValue="Choose..." value={formData.category} onChange={handleChange} name="category">
-            <option>Choose...</option>
-            <option>...</option>
-          </Form.Select>
+                          <Form.Select style={{ opacity: 0.8 }} value={formData.category} onChange={handleChange} name="category" tooltip="Select a category to which the your startup belong to.">
+                              <option>select...</option>
+                              <option>Agriculture</option>
+                              <option>Education</option>
+                              <option>Information Technology</option>
+                              <option>E-Commerce</option>
+                              <option>Food</option>
+                              <option>Fashion</option>
+                              <option>Insurance</option>
+                              <option>HealthCare</option>
+                              <option>Machinery(Hardware technology)</option>
+                              <option>Real Estate</option>
+                              <option>Restaraunts</option>
+                              <option>Others</option>
+                          </Form.Select>
+         
         </Form.Group>
-        <Form.Group as={Col} controlId="formGridLastName">
-          <Form.Label>Youtube Profile video link</Form.Label>
-          
-          <Form.Control style={{opacity:0.8}} type="text"  placeholder="Enter youtube link" onChange={handleChange} name="logo" />
+        <Form.Group as={Col} controlId="formGridLastName" title="Provide a YouTube URL which showcases your startup.">
+          <Form.Label>Youtube video link</Form.Label>
+        
+          <Form.Control  style={{opacity:0.8}} type="text"  placeholder="Enter youtube link" onChange={handleChange} name="video" value={formData.video}/>
           
         </Form.Group>
         <Form.Group as={Col} controlId="formGridLastName">
@@ -414,44 +477,53 @@ useEffect(() => {
         </Form.Group>
        
       </Row>
-      <Row className='mb-3' >
-      <Form.Group as={Col} >
+     
+      <Row className='mb-3' style={{marginRight:"10px",marginLeft:"10PX"}} >
+      <Form.Group as={Col}  title="The main vision of the startup.">
         <Form.Label>Vision</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Vision" style={{height:"150px",opacity:0.8}} value={formData.vision} onChange={handleChange} name="vision" />
       </Form.Group>
-      <Form.Group as={Col} >
+      <Form.Group as={Col} title="provide a short description of the startup.">
         <Form.Label>Description</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Description" style={{height:"150px",opacity:0.8}} value={formData.description} onChange={handleChange} name="description" />
       </Form.Group>
       </Row >
-      <Row style={{height:'200px'}}>
-        <Col md={4}>
-        <Form.Group >
+      <Row style={{height:'200px',marginTop:"30px",marginRight:"10px",marginLeft:"10PX"}}>
+        <Col md={6}>
+        <Form.Group title=" Give a short description on the founders of the start-up">
         <Form.Label>About the Founders</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Founders Information" style={{height:"150px",opacity:0.8}} value={formData.aboutFounders} onChange={handleChange} name="aboutFounders"/>
       </Form.Group>
         </Col>
-        <Col md={5}> <Form.Group >
+        <Col md={6}> <Form.Group title="Give the product description of all the products available.">
         <Form.Label>Product Description</Form.Label>
         <Form.Control as="textarea" placeholder="Add the Product Description" style={{height:"150px",opacity:0.8}} value={formData.productDescription} onChange={handleChange} name="productDescription"/>
       </Form.Group></Col>
      
-      <Col md={3}>
-      <Row style={{width:'260px',marginTop:'5px' }}>
-      <Form.Group><Form.Label>Last 3 Months Revenue Details:</Form.Label>
+     
+      </Row >
+      </div>
+
+      <h1  style={{marginTop:"30px"}}>Financial Details</h1>
+      <div style={{marginTop:"30px",backgroundColor:"lightGrey",borderRadius:"10PX 10PX 10PX 10PX",height:"210px"}}>
+
+      <Row className="mb-3" style={{marginTop:"30px",marginLeft:"10px"}}>
+      <Col md={2}>
+      <Row style={{width:'260px'}}>
+      <Form.Group title="total revenue generated by your business from all the active subscriptions in a last 3 months"><Form.Label>Monthly Revenue:</Form.Label>
       <Row >
       <Col>
       <InputGroup style={{width:'250px'}}>
       <Form.Select  style={{opacity:0.8}} 
       onChange={handleChange}
       name="m1" placeholder='select..'>
-        <option>{formData.last3MonthsRevenue[0].month?formData.last3MonthsRevenue[0].month:"choose.."}</option>
+        <option>{formData.m1?formData.m1:"choose.."}</option>
         {mNames.map(e=>(
           <option>{e}</option>
         ))}
     </Form.Select>
       <InputGroup.Text>$</InputGroup.Text>
-      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[0].revenue} onChange={handleChange} name="r1" placeholder='Revenue'/>
+      <Form.Control type='number' style={{opacity:0.8,width:"70px"}} value={formData.r1} onChange={handleChange} name="r1" placeholder='Revenue'/>
       </InputGroup>
       </Col>
       
@@ -460,13 +532,13 @@ useEffect(() => {
       <Form.Select  style={{opacity:0.8}} 
       onChange={handleChange}
       name="m2" placeholder='select..'>
-        <option>{formData.last3MonthsRevenue[1].month?formData.last3MonthsRevenue[1].month:"choose.."}</option>
+        <option>{formData.m2?formData.m2:"choose.."}</option>
         {mNames.map(e=>(
           <option>{e}</option>
         ))}
     </Form.Select>
       <InputGroup.Text>$</InputGroup.Text>
-      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[1].revenue} onChange={handleChange} name="r2" placeholder='Revenue'/>
+      <Form.Control type='number' style={{opacity:0.8,width:"70px"}} value={formData.r2} onChange={handleChange} name="r2" placeholder='Revenue'/>
       </InputGroup>
       </Col>
       <Col>
@@ -474,13 +546,13 @@ useEffect(() => {
       <Form.Select  style={{opacity:0.8}} 
       onChange={handleChange}
       name="m3" placeholder='select..'>
-        <option>{formData.last3MonthsRevenue[2].month?formData.last3MonthsRevenue[2].month:"choose.."}</option>
+        <option>{formData.m3?formData.m3:"choose.."}</option>
         {mNames.map(e=>(
           <option>{e}</option>
         ))}
     </Form.Select>
       <InputGroup.Text>$</InputGroup.Text>
-      <Form.Control type='number' style={{opacity:0.8}} value={formData.last3MonthsRevenue[2].revenue} onChange={handleChange} name="r3" placeholder='Revenue'/>
+      <Form.Control type='number' style={{opacity:0.8,width:"70px"}} value={formData.r3} onChange={handleChange} name="r3" placeholder='Revenue'/>
       </InputGroup>
       </Col>
       </Row>
@@ -488,96 +560,124 @@ useEffect(() => {
 
     </Row>
       </Col>
-      </Row >
-      
-      <Row className="mb-3">
-      <FormGroup as={Col} controlId="">
+      <Col md={2} style={{marginLeft:"5%"}}>
+      <FormGroup as={Row} controlId="" title="determine the current worth of your startup">
       <Form.Label>TotalValuation</Form.Label>
-      <InputGroup >
+      <InputGroup  >
           <InputGroup.Text>$</InputGroup.Text>
           <Form.Control style={{opacity:0.8}} type="number" value={formData.totalValuation} onChange={handleChange} name="totalValuation" placeholder='Enter Total Valuation'/>
         </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="">
-      <Form.Label>Revenue</Form.Label>
+        <FormGroup as={Row} controlId="" style={{marginTop:"10px"}} title="gross income of the last year ">
+      <Form.Label>Annual Revenue</Form.Label>
       <InputGroup >
           <InputGroup.Text>$</InputGroup.Text>
           <Form.Control  style={{opacity:0.8}} type="number" value={formData.revenue} onChange={handleChange} name="revenue" placeholder='Enter Revenue'/>
         </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="" >
-      <Form.Label>Percentage Offering</Form.Label>
-      <InputGroup>
-          <Form.Control style={{opacity:0.8}}  type="number" value={formData.percentOffer} onChange={handleChange} name="percentOffer" placeholder=''/>
-          <InputGroup.Text>%</InputGroup.Text>
-        </InputGroup>
-        </FormGroup>
-        <FormGroup as={Col} controlId="" >
-      <Form.Label>Total Bits</Form.Label>
-      <Form.Control style={{opacity:0.8}}   type="number" value={formData.totalBits} onChange={handleChange} name="totalBits" placeholder='Bits count'/>
 
-        </FormGroup>
-        <FormGroup as={Col} controlId="" >
-      <Form.Label>Bit Value</Form.Label>
-      <Form.Control style={{opacity:0.8}}  readOnly="readonly" type="number" value={(formData.totalValuation*formData.percentOffer)/formData.totalBits} name="bitValue" placeholder='-'/>
-        </FormGroup>
-        
-        <Form.Group as={Col} controlId="formGridPhNumber">
-          <Form.Label>Phone Number</Form.Label>
-          <Form.Control style={{opacity:0.8}}  type="text" value={formData.phNumber} onChange={handleChange} name="phNumber" placeholder='Enter Phone Number'/>
-        </Form.Group>
-
-        <Form.Group as={Col} controlId="formGridEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control style={{opacity:0.8}} type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
-        </Form.Group>
-        
-      </Row>
-      <Row className="mb-3">
-      <FormGroup as={Col} controlId="">
-      <Form.Label>Gross Profits Percentage</Form.Label>
+</Col>
+<Col md={2} style={{marginLeft:"10px"}}>
+<FormGroup as={Row} controlId="" title="Current gross profits of your company ">
+      <Form.Label>Gross Profits</Form.Label>
       <InputGroup >
           
           <Form.Control style={{opacity:0.8}} type="number" value={formData.grossProfit} onChange={handleChange} name="grossProfit" placeholder='Gross Profits'/>
           <InputGroup.Text>%</InputGroup.Text>
         </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="">
-      <Form.Label>Net Profits Percentage</Form.Label>
+        <FormGroup as={Row} controlId="" style={{marginTop:"10px"}} title="net profit is generated as a percentage of revenue by the startup">
+      <Form.Label>Net Profits</Form.Label>
       <InputGroup >
           
           <Form.Control  style={{opacity:0.8}} type="number" value={formData.netProfit} onChange={handleChange} name="netProfit" placeholder='Net Profits'/>
           <InputGroup.Text>%</InputGroup.Text>
         </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="" >
+</Col>  
+<Col md={3} style={{marginLeft:"10px"}}>
+<FormGroup as={Col} controlId="" title="If the startup is spending more cash(Includes everything) then profits then how much in %.">
       <Form.Label>Any Cash Burn</Form.Label>
       <InputGroup>
       <InputGroup.Text><Form.Check type="switch" id="yes-no-switch" label={iscb?'Yes':'No'} onChange={handleChange} name="anyCashBurn" checked={iscb}/></InputGroup.Text>
-          <Form.Control style={{opacity:0.8}}  type="number" value={formData.cashBurn} onChange={handleChange} name="percentOffer" placeholder='' disabled={!iscb}/>
+          <Form.Control style={{opacity:0.8}}  type="number" value={formData.cashBurn} onChange={handleChange} name="cashBurn" placeholder='' disabled={!iscb}/>
           <InputGroup.Text>%</InputGroup.Text>
         </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="" >
+        <FormGroup as={Col} controlId="" style={{marginTop:"10px"}} title="ownership shares in a company issued to the original organizers, or founders">
       <Form.Label>Equity With Founders</Form.Label>
       <InputGroup>
       <Form.Control style={{opacity:0.8}}   type="number" value={formData.equityWithFounders} onChange={handleChange} name="equityWithFounders" placeholder='Equity Percent'/>
       <InputGroup.Text>%</InputGroup.Text>
       </InputGroup>
         </FormGroup>
-        <FormGroup as={Col} controlId="" >
-      <Form.Label>Name Of The Bank</Form.Label>
-      <Form.Control style={{opacity:0.8}}   type="text" value={formData.bank} name="bank" placeholder='Bank Name'/>
+        </Col>
+        <FormGroup as={Col} controlId="" style={{marginRight:"10PX"}} title="give a short description of the prior investors.">
+      <Form.Label>Prior Investments</Form.Label>
+      <Form.Control style={{opacity:0.8,height:"130px"}}   as="textarea" onChange={handleChange}  value={formData.priorInvestment} name="priorInvestment" placeholder='Prior Investments'/>
+        </FormGroup>
+        </Row>
+        
+        </div>
+        <h1  style={{marginTop:"30px"}}>Funding Details</h1>
+        <div style={{marginTop:"30px",backgroundColor:"lightGrey",borderRadius:"10PX 10PX 10PX 10PX",height:"120px"}}>
+
+      <Row className="mb-3" style={{marginTop:"30px",marginLeft:"10px",marginRight:"10px"}}>
+      <FormGroup as={Col} controlId="" title="sale of a security by the start-up">
+      <Form.Label>Percentage Offering</Form.Label>
+      <InputGroup>
+          <Form.Control style={{opacity:0.8}}  type="number" value={formData.percentOffer} onChange={handleChange} name="percentOffer" placeholder='Enter Percentage Offering'/>
+          <InputGroup.Text>%</InputGroup.Text>
+        </InputGroup>
+        </FormGroup>
+        <FormGroup as={Col} controlId="" title="The number of bits which the startup offers (This determines the value of each bit)">
+      <Form.Label>Total Bits</Form.Label>
+      <Form.Control style={{opacity:0.8}}   type="number" value={formData.totalBits} onChange={handleChange} name="totalBits" placeholder='Bits count'/>
+
+        </FormGroup>
+        <FormGroup as={Col} controlId="" title="Bit value is the(Total valuation * % of startup offering)/(100 * Number of bits)
+">
+        <Form.Label>Bit Value</Form.Label>
+        <InputGroup>
+        <Form.Control  style={{ opacity: 0.8 }}  type="number" value={((formData.totalValuation* formData.percentOffer) / (formData.totalBits*100)).toFixed(2)} name="costPerBit" placeholder='-'/>
+        </InputGroup>
+        </FormGroup>
+        <Form.Group as={Col} controlId="formGridDob" title="The date by which the investment round ends.">
+        <Form.Label>Investment End Date</Form.Label>
+        <InputGroup className='mb-3'>
+          <Form.Control type="date" format="MM/DD/YYYY" isInvalid={!isFuture(new Date(formData.time))} placeholder="MM/DD/YYYY" value={formData.time} onChange={handleChange} name="time" style={{width:'100%'}}/>
+          <Form.Control.Feedback type="invalid">Please Select a Future Date</Form.Control.Feedback>
+          </InputGroup>
+        </Form.Group>
+        </Row>
+        </div>
+        <h1 style={{marginTop:"30px"}}>Address & Contact Details</h1>
+        <div style={{marginTop:"30px",backgroundColor:"lightGrey",borderRadius:"10PX 10PX 10PX 10PX",height:"350px"}}>
+        
+        <Row className="mb-3" style={{marginTop:"30px",marginLeft:"10PX",marginRight:"10px"}}>
+        <Form.Group as={Col} controlId="formGridPhNumber" title="The phone number through which startup can be contacted ">
+          <Form.Label>Phone Number</Form.Label>
+          <Form.Control style={{opacity:0.8}}  type="text" value={formData.phNumber} onChange={handleChange} name="phNumber" placeholder='Enter Phone Number'/>
+        </Form.Group>
+
+        <Form.Group as={Col} controlId="formGridEmail" title="The Email through which startup can be contacted ">
+          <Form.Label>Email</Form.Label>
+          <Form.Control style={{opacity:0.8}} type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
+        </Form.Group>
+        <FormGroup as={Col} controlId="" title="Name of the bank to which the funds should be transferred ">
+      <Form.Label>Bank Name</Form.Label>
+      <Form.Control style={{opacity:0.8}}   type="text" onChange={handleChange}  value={formData.bank} name="bank" placeholder='Bank Name'/>
         </FormGroup>
       
-        <FormGroup as={Col} controlId="" >
+        <FormGroup as={Col} controlId="" title="Account number of the bank to which the funds should be transferred ">
       <Form.Label>Account Number</Form.Label>
-      <Form.Control style={{opacity:0.8}}   type="number" value={formData.bankAccount} name="bankAccount" placeholder='Bank Account'/>
+      <Form.Control style={{opacity:0.8}} onChange={handleChange}   type="number" value={formData.bankAccount} name="bankAccount" placeholder='Bank Account'/>
         </FormGroup>
         
         
       </Row>
-<Row className="mb-3">
+      
+<Row className="mb-3" style={{marginTop:"30px",marginLeft:"10PX",marginRight:"10px"}} title="Address of the startup establishment.">
 <Form.Group as={Col} controlId="formGridAddress1">
         <Form.Label>Address</Form.Label>
         <Form.Control style={{opacity:0.8}}   value={formData.address1} onChange={handleChange} name="address1" placeholder="Enter Address Line 1"/>
@@ -590,7 +690,7 @@ useEffect(() => {
     </Row>
       
 
-      <Row className="mb-3">
+      <Row className="mb-3" style={{marginTop:"30px",marginLeft:"10PX",marginRight:"10px"}}>
         <Form.Group as={Col} controlId="formGridCity">
           <Form.Label>City</Form.Label>
           <Form.Control  style={{opacity:0.8}} value={formData.city} onChange={handleChange} name="city" placeholder='Enter City'/>
@@ -598,7 +698,7 @@ useEffect(() => {
 
         <Form.Group as={Col} controlId="formGridState">
           <Form.Label>State</Form.Label>
-          <Form.Control style={{opacity:0.8}}  value={formData.state} onChange={handleChange} name="city" placeholder='Enter State'/>
+          <Form.Control style={{opacity:0.8}}  value={formData.state} onChange={handleChange} name="state" placeholder='Enter State'/>
         </Form.Group>
 
         <Form.Group as={Col} controlId="formGridCountry">
@@ -613,11 +713,15 @@ useEffect(() => {
     </Form.Select>
         </Form.Group>
       </Row>
-    
+      </div>
+      <Button  disabled={formData.vision.length>1500 || formData.description.length>1500 ||formData.aboutFounders.length>1500||formData.productDescription.length>1500 || !isFuture(new Date(formData.time))} className="nav-link"  onClick={handleSubmit} style={{WebkitTextFillColor:'white',margin:'10px',width:'100px',height:'35px',backgroundColor:'green',WebkitTextFillColor:'white',border:'white',borderRadius:'5px',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold',float:"right"}}>{status}</Button>
+      <p style={{color:"red"}}>{error}</p>
+      {formData.vision.length>1500?<p style={{color:"red"}}>"Vision" characters limit Exceeds,make sure the limit is 1500 letters</p>:null}
+      {formData.description.length>1500?<p style={{color:"red"}}>"Description" characters limit Exceeds,make sure the limit is 1500 letters</p>:null}
+      {formData.aboutFounders.length>1500?<p style={{color:"red"}}>"About Founders" characters limit Exceeds,make sure the limit is 1500 letters</p>:null}
+      {formData.productDescription.length>1500?<p style={{color:"red"}}>"Product Description" characters limit Exceeds,make sure the limit is 1500 letters</p>:null}
 
-      <Button variant="secondary" type="submit" style={{float:'right'}}>
-        Submit
-      </Button>
+        
     </Form>
         </div>
         
