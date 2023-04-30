@@ -16,7 +16,7 @@ import Modal from 'react-bootstrap/Modal';
 import { InputMask } from "primereact/inputmask";
 import { Form } from 'react-bootstrap';
 import { InputText } from "primereact/inputtext";
-
+import Tab from 'react-bootstrap/Tab'
 import Col from 'react-bootstrap/Col';
 import img from "../src/aboutus.jpg"
 import Row from 'react-bootstrap/Row';
@@ -37,16 +37,16 @@ import 'primeicons/primeicons.css';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 function Ihome(props) {
-  const {page,changePage,sData,changeSName}=props;
+  const {page,changePage,sData,changeSName,investor,changeInvestor,investments,setInvestments,successList,Cinvestments,setCinvestments}=props;
 
   const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [show3,setShow3]=useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
   const [formData,setFormData]=useState({
-    email: 'sample@gmail.com',
+    email: '',
     password: '',
-    firstName:'abc',
+    firstName:'',
     lastName:'',
     ssn:'',
     dob:'',
@@ -57,288 +57,163 @@ function Ihome(props) {
     phNumber:'',
     country:''
   });
-  const sList=[{
-    email: 'scrubdaddy@gmail.com',
-        password: 'scrubdaddy@123',
-            startUpName: 'Scrub Daddy',
-                year: '01/01/2012',
-                    vision: ' To provide and uplift the average Filipino with fun and innovative cleaning solutions through Scrub Daddys unique products',
-                        description: 'Scrub Daddy makes high-performance cleaning products by combining exclusive materials with fun, functional designs.',
-                            city: 'Pennsauken',
-                                state: 'New Jersey',
-                                    address1: 'Scrub Daddy Inc. 1700 Suckle Hwy',
-                                        address2: ' Pennsauken, New Jersey 08110.',
-                                            phNumber: '8443572782',
-                                                country: 'USA',
-                                                    category: 'Household',
-                                                        productDescription: " Our broad range of products combine ergonomic design with innovative technologies to deliver superior cleaning power. Our texture changing non-toxic and scratch-free smiling scrubbers are the smart solution for kitchen and bathroom cleaning. Odor resistant and dual-use sponges and scouring pads are perfect for delicate applications as well as heavy-duty jobs. Eraser Daddy brightens the surfaces around your home in seconds while far outlasting competeing eraser pads. The Scrub Daddy family can handle any cleaning job around your home with a smile",
-                                                            aboutFounders: 'Aaron Krause',
-                                                                revenue: "120000",
-                                                                    monthlySales: { "jan": "10200", "feb": "11300" },
-    yealyBreakUp: { "2015": "25000","2016": "30000","2017": "44000", "2018": "60000","2019": "63000", "2020": "90000","2021": "93000", "2022": "120000" },
-    percentOffer: "10",
-        totalValuation: "1000000",
-            costPerBit: "50",
-                time: "60 days",
-    priorInvestment: "Bootstrap",
-        video: "https://youtu.be/fyg-yYiDJ2M",
-            totalBits: 2000,
-                last3MonthsRevenue: [
-                    { month: 'Dec', revenue: 10200 },
-                    { month: 'Jan', revenue: 8700 },
-                    { month: 'Feb', revenue: 7300 }
-                ],
-                    investors: [
-                        {
-                            investor: 'Sam',
-                            investment: '$500',
-                            date: '12/25/2023'
-                        },
-                        {
-                            investor: 'Jhon',
-                            investment: '$4000',
-                            date: '01/21/2023'
-                        },
-      {
-                            investor: 'Katy',
-                            investment: '$3000',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Frank Jr',
-                            investment: '$2200',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'chadler',
-                            investment: '$7500',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Rachel',
-                            investment: '$2750',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'monica',
-                            investment: '$5500',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Joey',
-                            investment: '$6650',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Journey Ayers',
-                            investment: '$11000',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Damion Livingston',
-                            investment: '$1650',
-                            date: '02/17/2023'
-                        }]},{
-                          email: 'doorbot@gmail.com',
-                              password: 'Doorbot@890',
-                                  startUpName:'Doorbot',
-                                      year: '01/01/2020',
-                                          vision: 'To make door security accessable for every household',
-                                              description: 'Doorbot is a video intercom for your smartphones and tablets. See and talk with visitors using your smartphones and tablets.',
-                                                  city: 'Santa Monica',
-                                                      state:'California',
-                                                          address1: 'Santa Monica,California',
-                                                              address2: '',
-                                                                  phNumber: '98327842948',
-                                                                      country: 'USA',
-                                                                          category: 'Security',
-                                                                              productDescription: "DoorBot is simple, yet powerful.wireless doorbell that streams livevideo and audio of your front doordirectly to your smartphone or tablet.Simply install DoorBot, download thefree app and you're ready to go.",
-                                                                                  aboutFounders: 'Jamie Siminoff',
-                                                                                      revenue: "$ 1.9 million",
-                                                                                          monthlySales: {'dec':'75.2k', "jan": "78.8k", "feb": "81k" },
-                          yealyBreakUp: {"2020": "350k","2021": "550k", "2022": "$ 1 million" },
-                          percentOffer: "10",
-                              totalValuation: "7000000",
-                                  costPerBit: "140",
-                                      time:"65 days",
-                          priorInvestment: "Qualcomm ventures",
-                              video: "https://youtu.be/ouOrfvqUGbI",
-                                  TotalBitsOffered: 5000,
-                                      last3MonthsRevenue: [
-                                          { month: 'Dec', revenue: 75200 },
-                                          { month: 'Jan', revenue: 78800 },
-                                          { month: 'Feb', revenue: 81000 }
-                                      ],
-                                          investors: [
-                                              {
-                                                  investor:'Qualcomm',
-                                                  investment: '$400k ',
-                                                  date: '01/03/2023'
-                                              },
-                                              {
-                                                  investor:'DFJ Growth',
-                                                  investment: '$300k',
-                                                  date: '01/18/2023'
-                                              }],
-                            
-                                              anyCashBurn:"Yes",
-                                              cashBurn:"20",
-                                              grossProfit:30,
-                                              netProfit:'-',
-                                              equityWithFounders:70,
-                                              bank:'SEFCU Bank',
-                                              bankAccount:'546378972145'
-                      },{
-                        email: 'pizzacupcake@gmail.com',
-                            password: 'PizzaCupcake#NY',
-                                startUpName:'Pizza Cup Cake',
-                                    year: '01/01/2018',
-                                        vision: 'To provide new pizza experience that\'s a conveniently cupcake-shaped snack ',
-                                            description: 'a new pizza experience that\'s a conveniently cupcake-shaped snack, perfect for when you want pizza on the go',
-                                                city: 'Brooklyn',
-                                                    state:'NewYork',
-                                                        address1: '130 Water St 3C',
-                                                            address2: '',
-                                                                phNumber: '5638881234',
-                                                                    country: 'USA',
-                                                                        category: 'Food',
-                                                                            productDescription: "The Pizza Cupcake, made with love in Brooklyn, NY, It is filled with real mozzarella cheese, and imported.Italian tomatoes, along with atrade-secret dough(Not traditional pizza dough)that is flaky and savory.",
-                                                                                aboutFounders: 'Michelle Jimenez-Meggiato,Andrea Meggiato',
-                                                                                    revenue: "770000",
-                                                                                        monthlySales: {'dec':'21k', "jan": "24k", "feb": "26k" },
-                        yealyBreakUp: {"2018": "47k","2019": "80k", "2020": "131k","2021": "178k", "2022": "$ 344k" },
-                        percentOffer: "5",
-                            totalValuation: "25000000",
-                                costPerBit: "125",
-                                    time:'60 days',
-                        priorInvestment: "BootStrap",
-                            video: "https://youtu.be/7-1EEwPQ_38",
-                                TotalBitsOffered: 10000,
-                                    last3MonthsRevenue: [
-                                        { month: 'Dec', revenue: '21000' },
-                                        { month: 'Jan', revenue: '24000' },
-                                        { month: 'Feb', revenue: '26000' }
-                                    ],
-                                        investors: [
-                                            {
-                                                investor:'lary',
-                                                investment: '$725k ',
-                                                date: '2/23//2023'
-                                            },
-                                            {
-                                                investor: 'blackstone',
-                                                investment: '$500k',
-                                                date: '01/21/2023'
-                                            }],
-                                            anyCashBurn:"No",
-                                            cashBurn:"-",
-                                            grossProfit:55,
-                                            netProfit:'25',
-                                            equityWithFounders:100,
-                                            bank:'Bank of america',
-                                            bankAccount:'785462895468'
-                    },{
-  email: 'cupbop@gmail.com',
-      password: 'cupbop@890',
-          startUpName:'cupbop',
-              year: '01/01/2019',
-                  vision: "CUPBOP MEANS A STEAMING CUP OF WOW! We're here to end your boredom with the same old food choices",
-                   description: "The Cupbop menu is our own delicioustake on Korean cuisine",
-                          city: 'Glendale',
-                              state:'Arizona',
-                                  address1: '9410 W Hanna Ln Ste 101, Glendale, Arizona, 85305, United States',
-                                      address2: '',
-                                          phNumber: '98327842966',
-                                              country: 'USA',
-                                                  category: 'food',
-                                                      productDescription: "“Bop” is Korean for “steamed rice.”Cupbop is steamed rice servedin a cup, along with cabbage, sweet potato noodles, a protein ofchoice and one of their specialty sauces that range fromsweet (#1) to fiery (10). The menu is based on the Korean BBQ the trio ate while growing up in South Korea.",
-                                                          aboutFounders: 'Park, JK Kim and Jung Song',
-                                                              revenue: "$ 60 million",
-                                                                  monthlySales: {"jan": "93.7k", "feb": "$1 million " },
-  yealyBreakUp: {'2019':'9.3 million',"2020": "14 million","2021": "18 million", "2022": "$ 18.7 million" },
-  percentOffer: "3",
-      totalValuation: "33000000",
-          costPerBit: "110 ",
-              time:"27 days",
-  priorInvestment: "Bootstraped",
-      video: "https://youtu.be/mKlZ7rtiPbY",
-          TotalBitsOffered: 9000,
-              last3MonthsRevenue: [
-                  { month: 'Dec', revenue: 89100},
-                  { month: 'Jan', revenue: 9370000 },
-                  { month: 'Feb', revenue: 1000000 }
-              ],
-                  investors: [
-                      {
-                          investor:'xavier',
-                          investment: '$500k ',
-                          date: '01/08/2023'
-                      },
-                      {
-                          investor:'john',
-                          investment: '$300k',
-                          date: '02/18/2023'
-                      },
-{
-                          investor:'smitha',
-                          investment: '$200k',
-                          date: '02/28/2023'
-                      }],
+  const ssnValidation=(/^\d{9}$/.test(formData.ssn))?true:false;
+    const access = (
+        formData.firstName == "" ||
+        formData.lastName == "" ||
+        formData.ssn == "" ||
+        formData.ssn == null ||
+        formData.dob == "" ||
+        formData.city == "" ||
+        formData.state == "" ||
+        formData.address1 == "" ||
+        formData.address2 == "" ||
+        formData.phNumber == "" ||
+        formData.country == "");
+  
+  const [sList,setSList]=useState([]);
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/getTop5',{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          console.log(json)
+        setSList(json);
+         console.log(sData);
+          
 
+          
+        } else {
+          const text = await response.text();
+          
+          
+        }
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/getInvestors/'+investor,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          setFormData(json);
+          console.log(data);
+
+          setError(null);
+        } else {
+          const text = await response.text();
+          setData(text);
+          setError(null);
+        }
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/investments/'+investor,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          setInvestments(json);
+          console.log(json);
+        } 
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/Cinvestments/'+investor,{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          setCinvestments(json);
+          console.log(json);
+        } 
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
     
-                      anyCashBurn:"No",
-                      cashBurn:"-",
-                      grossProfit:45,
-                      netProfit:20,
-                      equityWithFounders:100,
-                      bank:'SEFCU Bank',
-                      bankAccount:'54637894321'
-},{
-  email: 'bombas@gmail.com',
-      password: 'bombas#NY',
-          startUpName:'Bombas',
-              year: '01/01/2017',
-                  vision: 'One Purchased = One Donated ',
-                      description: 'Bombas is an apparel brand. which sells socks and T-shirts',
-                          city: 'newyork',
-                              state:'NewYork',
-                                  address1: '881 Broadway Second FloorNew York, NY 10003USA',
-                                      address2: '',
-                                          phNumber: '5638881267',
-                                              country: 'USA',
-                                                  category: 'clothing',
-                                                      productDescription: "Bombas Socks are purpose built forathletic performance, engineered forcomfort, and designed to stand out. Rumor has it a baby kitten is savedfrom a very tall tree every time you slip on a pair.",
-                                                          aboutFounders: 'Randy Goldberg ,David Heath',
-                                                              revenue: "1900000",
-                                                                  monthlySales: { "jan": "80.1k", "feb": "82.5k" },
-  yealyBreakUp: {"2018": "97k","2019": "173k", "2020": "226k","2021": "352k", "2022": "1 million" },
-  percentOffer: "5",
-      totalValuation: "4000000",
-          costPerBit: "80",
-              time:"90 days",
-  priorInvestment: "Daymond Garfield John",
-      video: "https://youtu.be/qT66d_PRR6U",
-          TotalBitsOffered: 2500,
-              last3MonthsRevenue: [
-                  { month: 'Dec', revenue: 78000 },
-                  { month: 'Jan', revenue: 80100 },
-                  { month: 'Feb', revenue: 82500 }
-              ],
-                  investors: [
-                      {
-                          investor:'Daymond Garfield John',
-                          investment: '$200k ',
-                          date: '1/17//2023'
-                      }],
-                      anyCashBurn:'N0',
-                      cashBurn:"-",
-                      grossProfit:60,
-                      netProfit:35,
-                      equityWithFounders:100,
-                      bank:'Bank of america',
-                      bankAccount:'785462893457'
-}];
-const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"},{startUpName:"Company2",video:"https://youtu.be/jDLuJLoaA_g"},{startUpName:"Company3",video:"https://youtu.be/jDLuJLoaA_g"},{startUpName:"Company4",video:"https://youtu.be/jDLuJLoaA_g"},{startUpName:"Company5",video:"https://youtu.be/jDLuJLoaA_g"}];
+    fetchData();
+  }, []);
+  const handleSubmit=async()=>{
+   
+    setShow(false);
+    try {
+      const response = await fetch('http://52.207.171.26:8081/api/user/updateDetails/'+investor,{
+          method: 'PUT',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+         
+          console.log(json);
+
+          setError(null);
+        } else {
+          const text = await response.text();
+          setData(text);
+          setError(null);
+        }
+    } catch (error) {
+      console.error(error);
+    }
+    
+    
+  };
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const handleShow3 = () => setShow3(true);
+  const handleClose3 = () => setShow3(false);
 
   const [index2, setIndex2] = useState(0);
 
@@ -367,45 +242,9 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
     setIndex((index + 1) % sList.length);
     }
   };
-  const[passCheck,setPassCheck]=useState(1);
-  const[emailCheck,setEmailCheck]=useState(1);
+  
   const[phCheck,setPhCheck]=useState(1);
   const[ssnCheck,setSSNCheck]=useState(1);
-
-
-    const [password, setPassword] = useState('');
-  
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
-    const isLengthValid = password.length >= 8;
-  
-    const getValidationMessage = () => {
-      let message = '';
-  
-      if (!hasLowerCase) {
-        message += ' At least one lowercase letter';
-      }
-  
-      if (!hasUpperCase) {
-        message += ' At least one uppercase letter';
-      }
-  
-      if (!hasNumber) {
-        message += ' At least one number';
-      }
-  
-      if (!hasSpecialChar) {
-        message += ' At least one special character';
-      }
-  
-      if (!isLengthValid) {
-        message += ' Minimum length of 8 characters';
-      }
-  
-      return message;
-    };
   const handleChange = event => {
     if(event.target.name=='email'){
       if(/\S+@\S+\.com+/.test(event.target.value))setEmailCheck(1);
@@ -419,21 +258,12 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
       if(/^\d{9}$/.test(event.target.value))setSSNCheck(1);
       else setSSNCheck(0);
     }
-    if(event.target.name=='password'){
-      setPassword(event.target.value);
-    }
-    if(event.target.name=='cPassword'){
-      if(event.target.value!=formData.password)setPassCheck(0);
-      else setPassCheck(1);
-    }
     if(event.target.name=='dob'){
-      const dp=event.target.value.split('-');
-      const dobj=new Date(dp[0],dp[1]-1,dp[2]);
-      const od= dobj.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
-      console.log(od);
+      
+      console.log(event.target.value);
       setFormData({
         ...formData,
-        [event.target.name]: od
+        [event.target.name]:event.target.value
       });
     }
     else{
@@ -451,6 +281,10 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
       changePage("home");
       navigate('/home');
     };
+    const handleSub = () => {
+      changePage("home");
+      navigate('/home');
+    };
     const footerScroll=()=>{
       window.scrollTo({
         top:document.body.scrollHeight,
@@ -458,15 +292,143 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
       });
     }
     const handleStartUp = () => {
-      changePage("ihome");
-      navigate('/startUps');
+        if (access == true) {
+            alert("Profile Incomplete..")
+        }
+        else {
+            changePage("ihome");
+            navigate('/startUps');
+        }
     };
+    const handleHistory = () => {
+        if (access == true) {
+            alert("Profile Incomplete..")
+        }
+        else {
+            navigate('/history');
+        }
+    }
+    const[p,setP]=useState(true);
+    const [formData3,setFormData3]=useState({
+      email: 'sample@gmail.com',
+      password: '',
+    });
+    const [passMsg,setPassMsg]=useState('');
+    const handleCurrentPass=(e)=>{
+      setPassMsg(e.target.value)
+    }
+    const handleChange3 = event => {
+      if(event.target.name=='email'){
+        if(/\S+@\S+\.\S+/.test(event.target.value))setEmailCheck(1);
+        else setEmailCheck(0);
+      }
+      if(event.target.name=='password'){
+        setPassword(event.target.value);
+      }
+        if(event.target.name=='confirmPassword'){
+          if(event.target.value!=formData3.password)setPassCheck(0);
+          else setPassCheck(1);
+        }
+      setFormData3({
+        ...formData3,
+        [event.target.name]: event.target.value
+      });
+    };
+    const[passCheck,setPassCheck]=useState(0);
+    const[emailCheck,setEmailCheck]=useState(1);
+    
+      const [password, setPassword] = useState('');
+    
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+      const isLengthValid = password.length >= 8;
+    
+      const getValidationMessage = () => {
+        let message = '';
+    
+        if (!hasLowerCase) {
+          message += ' At least one lowercase letter';
+        }
+    
+        if (!hasUpperCase) {
+          message += ' At least one uppercase letter';
+        }
+    
+        if (!hasNumber) {
+          message += ' At least one number';
+        }
+    
+        if (!hasSpecialChar) {
+          message += ' At least one special character';
+        }
+    
+        if (!isLengthValid) {
+          message += ' Minimum length of 8 characters';
+        }
+    
+        return message;
+      };
+    const [val,setVal]=useState("Submit");
+    const [err,setErr]=useState("");
+    const handlePassword=async()=>{
+      if(formData3.password==formData3.confirmPassword){
+      setVal("saving...");
+      
+      try {
+        const response = await fetch('http://52.207.171.26:8081/api/user/updateInvestorPassword/'+investor+"?password="+formData3.password,{
+            method: 'PUT',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            
+          });
+          console.log(response);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.indexOf('application/json') !== -1) {
+            const text = await response.json();
+            if(text.message=="success"){
+              setVal("Submit");
+              setShow3(false);
+              setErr("")
+              setPassMsg("")
+                  setFormData3({
+                    email: '',
+                    password: '',
+                  });
+                  setPassword("");
+                  alert("Password Changed Successfully!!!")
+              navigate("/ihome");
+          } 
+            else{
+              setVal("Submit")
+              setErr(text.message);
+            }
+            
+          }
+      } catch (error) {
+        setVal("Submit")
+              setErr("Network error");
+        console.error(error);
+      }
+    }
+    else{
+      setErr("Password and ConfirmPassword are not Matched...")
+    }
+      
+    };
+   
   return (
     <div>
     <header style={{backgroundColor:"grey",borderRadius:"0px 0px 0px 50px",position:'fixed',width:"100%", top:0,overflow:"hidden",zIndex:1}} >
     <Navbar expand="lg" bg="dark" style={{borderRadius:"0px 0px 0px 200px",height:"100px"}}>
     <Container style={{marginLeft:"40px"}}>
-    <h2 style={{WebkitTextFillColor:'white',fontWeight:'bold',marginTop:"11px",fontFamily:"calibri",fontSize:"40px"}}>INVESTIRE</h2>
+    <h2 style={{WebkitTextFillColor:'white',fontWeight:'bold',marginTop:"11px",fontFamily:"calibri",fontSize:"40px"}}> INVESTIRE</h2>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto" style={{marginLeft:"50px"}}>
@@ -474,13 +436,11 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
           <Toast ref={toast}></Toast>
           
           </div>
-            <Nav.Link href="" style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={handleStartUp}>InvestInUs</Nav.Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}}>MyInvestments</Nav.Link>
-            <Nav.Link href="#link" style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={footerScroll}>FAQ's</Nav.Link>
-           
-          </Nav>
-          <>
-          <i className="pi pi-spin pi-cog" style={{ fontSize: '2rem',color:'white' }} onClick={handleShow}></i>
+            <Nav.Link  style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={handleStartUp}><i className="pi pi-discord" style={{ color: '#708090' }}></i> StartUps</Nav.Link>
+            <Nav.Link onClick={handleHistory} style={{WebkitTextFillColor:'white',fontWeight:'bold'}}><i className="pi pi-bitcoin" style={{ color: '#708090' }}></i> MyInvestments</Nav.Link>
+            <>
+          
+            <Nav.Link  style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={handleShow}><i className="pi pi-user-edit" style={{ color: '#708090' }}></i> EditProfile</Nav.Link>
           <Modal 
         show={show}
         onHide={handleClose}
@@ -488,11 +448,13 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
         keyboard={false}
         
       >
-        <Modal.Header closeButton >
+        <Modal.Header closeButton onHide={()=>{fetchData();setP(true)}}>
           <Modal.Title>Edit Details</Modal.Title>
+          
         </Modal.Header>
+        
         <div >
-        <Form style={{margin:'20px 20px'}} onSubmit={handleClick}>
+        <Form style={{margin:'20px 20px'}} onSubmit={handleSub}>
         <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridFirstName">
           <Form.Label>First Name</Form.Label>
@@ -507,7 +469,7 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridEmail">
           <Form.Label>Email</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" value={formData.email} onChange={handleChange} name="email" />
+          <Form.Control type="email" placeholder="Enter email" disabled={true} value={formData.email} onChange={handleChange} name="email" />
           {emailCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid Email</p>:null}
         </Form.Group>
         
@@ -524,33 +486,13 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
        </Form.Group>
        
       </Row>
-      <Row>
-        <Form.Group as={Col} controlId="formGridPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" value={formData.password} onChange={handleChange} name="password" title={getValidationMessage()}/>
-          {password!='' && (!hasLowerCase ||
-        !hasUpperCase ||
-        !hasNumber ||
-        !hasSpecialChar ||
-        !isLengthValid )? (
-        <p style={{color:'red', marginTop:'1px'}}>Enter Valid Password</p>
-      ) : null}
-        </Form.Group>
-        
-        <Form.Group as={Col} controlId="formGridCPassword">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control type="password" placeholder="ConfirmPassword"  onChange={handleChange} name="cPassword" />
-          {passCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
-
-        </Form.Group>
-
-      </Row>
+      
       <Row className="mb-3">
         
 
         <Form.Group as={Col} controlId="formGridSsn">
           <Form.Label>SSN ID</Form.Label>
-          <Form.Control type="text" value={formData.ssn} onChange={handleChange} name="ssn" placeholder="Enter SSN Id" title="Enter 9 digits SSN Id"/>
+          <Form.Control type="text" disabled={ssnValidation} value={formData.ssn} onChange={handleChange} name="ssn" placeholder="Enter SSN Id" title="Enter 9 digits SSN Id"/>
           {ssnCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid SSN Id</p>:null}
 
         </Form.Group>
@@ -560,7 +502,6 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
         <InputGroup className='mb-3'>
 
           
-          <Form.Control type="text" placeholder={formData.dob?formData.dob:'MM/DD/YYYY'} value={formData.dob} onChange={handleChange} name="dob1" style={{width:'155px'}}/>
           <Form.Control type="date" format="MM/DD/YYYY" placeholder="MM/DD/YYYY" value={formData.dob} onChange={handleChange} name="dob" style={{width:'10px'}}/>
 
           </InputGroup>
@@ -586,7 +527,7 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
 
         <Form.Group as={Col} controlId="formGridState">
           <Form.Label>State</Form.Label>
-          <Form.Control value={formData.state} onChange={handleChange} name="city" placeholder='Enter State'/>
+          <Form.Control value={formData.state} onChange={handleChange} name="state" placeholder='Enter State'/>
         </Form.Group>
 
         <Form.Group as={Col} controlId="formGridCountry">
@@ -594,28 +535,82 @@ const successList=[{startUpName:"Company1",video:"https://youtu.be/jDLuJLoaA_g"}
           <Form.Control value={formData.country} onChange={handleChange} name="country" placeholder='Enter Country'/>
         </Form.Group>
       </Row>
-
-      <Button variant="secondary" type="submit">
-        Submit
-      </Button>
+      
+      <Button disabled={access || !ssnValidation } className="nav-link"  onClick={handleSubmit} style={{WebkitTextFillColor:'white',margin:'10px',width:'100px',height:'35px',backgroundColor:'green',WebkitTextFillColor:'white',border:'white',borderRadius:'5px',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold',float:"right"}}>Submit</Button>
     </Form>
         </div>
       </Modal>
       </>
+            <Nav.Link  style={{WebkitTextFillColor:'white',fontWeight:'bold'}} onClick={footerScroll}>FAQ's</Nav.Link>
+           
+          </Nav>
+       {formData.email!=""?<p style={{color:"white",fontWeight:'bold',marginRight:"50px",marginTop:"10px"}}>Welcome, {formData.firstName}</p>:""}
+       <>
+       
+          <i className="pi pi-spin pi-cog" style={{ fontSize: '2rem',color:'white' }} onClick={handleShow3}></i>
+          <Modal 
+        show={show3}
+        onHide={handleClose3}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton >
+          <Modal.Title>Change Password</Modal.Title>
+        </Modal.Header>
+        <div >
+        <div style={{margin:'20px 20px'}} >
+       
+      
+        <Form.Group as={Col} controlId="formGridEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control type="email" readOnly="readOnly" placeholder="Enter email" value={investor} onChange={handleChange3} />
+          {emailCheck==0?  <p style={{color:'red', marginTop:'1px'}}>Invalid Email</p>:null}
+        </Form.Group>
+        <Form.Group as={Col} controlId="currentPassword" style={{marginTop:'10px'}}>
+          <Form.Label>Current Password</Form.Label>
+          <Form.Control type="password" placeholder="Enter Current Password" title={getValidationMessage()} value={passMsg} onChange={handleCurrentPass} name="currentPassword" />
+          {passMsg!=formData.password&&passMsg!=""? <p style={{color:'red', marginTop:'1px'}}>Password Not Matched </p>: null}
+      </Form.Group>
+        <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
+          <Form.Label>New Password</Form.Label>
+          <Form.Control type="password" disabled={passMsg!=formData.password} placeholder=" Enter New Password" title={getValidationMessage()} value={formData3.password} onChange={handleChange3} name="password" />
+          {password!='' && (!hasLowerCase ||
+        !hasUpperCase ||
+        !hasNumber ||
+        !hasSpecialChar ||
+        !isLengthValid )? (
+        <p style={{color:'red', marginTop:'1px'}}>Password is too weak</p>
+      ) : null}
+        </Form.Group>
+        <Form.Group as={Col} controlId="formGridPassword" style={{marginTop:'10px'}}>
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control type="password" disabled={passMsg!=formData.password} placeholder="Confirm Password"  onChange={handleChange3} name="confirmPassword" />
+          {passCheck==0&&password!=""?  <p style={{color:'red', marginTop:'1px'}}>Password Not Matched</p>:null}
+
+        </Form.Group>
+        <Button  disabled={passMsg!=formData.password ||passCheck==0 || password==""}  className="nav-link"  onClick={handlePassword} style={{WebkitTextFillColor:'white',margin:'10px',width:'100px',height:'35px',backgroundColor:'green',WebkitTextFillColor:'white',border:'white',borderRadius:'5px',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold',float:"right"}}>{val}</Button>
+
+        {err!=""?<p style={{color:"red"}}>{err}</p>:null}
+    </div>
+    
+        </div>
+      </Modal>
+      </>
+          
           <Button onClick={handleClick} className="nav-link" style={{WebkitTextFillColor:'white',margin:'10px',width:'70px',height:'35px',backgroundColor:'white',WebkitTextFillColor:'black',border:'white',borderRadius:'5px',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:'bold'}}>Log out</Button>
         </Navbar.Collapse>
       </Container>
     </Navbar>
    </header>
-   <h1 style={{marginTop:"130px",marginLeft:"35px"}}>About Us</h1>
+   <h1 style={{marginTop:"130px",marginLeft:"35px"}}> </h1>
 
 <img src={img} style={{height:"450px",width:"95%",marginLeft:"3%",marginTop:"20px",opacity:0.9,borderRadius:"30px 30px 30px 30px" }}/>
 <>
   <h1 style={{marginTop:"30px",marginLeft:"35px"}}>Top 5 Funding Companies</h1>
   <div style={{display:"flex",marginLeft:"40px",marginTop:"40px",backgroundColor:"white",height:"350px",borderRadius:"30px 30px 30px 30px" ,width:"95%"}} >
      
-      {sList.slice(index, index + 3).map((component, i) => (
-        <Scomponent i={i} item={component} style={{display:"flex"}} sData={sData} changeSName={changeSName} page={page} changePage={changePage}/>
+                  {sList.slice(index, index + 3).map((component, i) => (
+                      <Scomponent i={i} item={component} style={{ display: "flex" }} sData={sData} changeSName={changeSName} page={page} changePage={changePage} access={access}/>
       ))}
       
       </div>
