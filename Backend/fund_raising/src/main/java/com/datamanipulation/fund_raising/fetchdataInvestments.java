@@ -15,12 +15,12 @@ public interface fetchdataInvestments extends JpaRepository<StartupModel,String>
 
     @Transactional
     @Modifying
-    @Query(value="SELECT * FROM `investments` JOIN `startup` where investments.startupEmail=startup.Email and investorEmail=?", nativeQuery=true)
+    @Query(value="SELECT * FROM investments JOIN startup ON investments.startupEmail=startup.Email COLLATE UTF8MB4_GENERAL_CI where investorEmail=?;", nativeQuery=true)
     List<Map<String,Object>> fetchInvestorInvestments(String email);
 
     @Transactional
     @Modifying
-    @Query(value="SELECT StartupName,`investorEmail`, `startupEmail`, sum( `amount`) as amount, sum(`bits`) as bits FROM `investments` JOIN `startup` where investments.startupEmail=startup.Email and investorEmail=? GROUP BY startupEmail", nativeQuery=true)
+    @Query(value="SELECT StartupName,`investorEmail`, `startupEmail`, sum( `amount`) as amount, sum(`bits`) as bits FROM `investments` JOIN `startup` ON investments.startupEmail=startup.Email COLLATE UTF8MB4_GENERAL_CI WHERE investorEmail=? GROUP BY startupEmail", nativeQuery=true)
     List<Map<String,Object>> fetchCInvestorInvestments(String email);
 
     @Transactional
@@ -35,7 +35,7 @@ public interface fetchdataInvestments extends JpaRepository<StartupModel,String>
 
     @Transactional
     @Modifying
-    @Query(value="INSERT INTO `investments`(`investorEmail`, `startupEmail`, `bits`, `amount`) VALUES (?,?,?,?)", nativeQuery=true)
+    @Query(value="INSERT INTO `investments`(`investorEmail`, `startupEmail`, `bits`, `amount`, `date`, `timeOfInvestment`) VALUES (?,?,?,?,CURRENT_DATE,CURRENT_TIME)", nativeQuery=true)
     void addInvestment(String iemail,String semail, int bits,Double amount);
 
     @Transactional
