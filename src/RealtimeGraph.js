@@ -13,21 +13,38 @@ function getCurrentTime() {
     return currentTimeString;
   }
   
-const RealtimeGraph = () => {
-  const [data, setData] = useState([{time: getCurrentTime(), TotalFund: 20}]);
-
+const RealtimeGraph = (props) => {
+  const {startUp}=props;
+  const [data, setData] = useState([{time: getCurrentTime(), TotalFund:null}]);
+  const [newData,setNewData]=useState();
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setData(prevData => {
-        const newData = Math.random()*100; 
-        return [...prevData, { time: getCurrentTime(), TotalFund: newData }];
-      });
-    }, 10000);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://52.207.171.26:8081/api/totalFund/'+startUp);
+        const data = await response.text();
+        setData(prevData => [...prevData, { time: getCurrentTime(), TotalFund: data }]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://52.207.171.26:8081/api/totalFund/'+startUp);
+        const data = await response.text();
+        setData(prevData => [...prevData, { time: getCurrentTime(), TotalFund: data }]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    const intervalId = setInterval(fetchData, 10000);
     return () => clearInterval(intervalId);
   }, []);
 console.log(data);
   return (
-    
+    <div>
     <LineChart width={500} height={320} data={data}>
             
 
@@ -40,7 +57,8 @@ console.log(data);
       <Tooltip />
       
     </LineChart>
-   
+    <div style={{marginTop:"20px",flexDirection:"row"}}><h3 style={{}}>Total Fund: <b style={{color:"green"}}>${data[data.length-1].TotalFund}</b></h3></div>
+    </div>
   );
 };
 
