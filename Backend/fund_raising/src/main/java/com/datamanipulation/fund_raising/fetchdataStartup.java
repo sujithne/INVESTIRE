@@ -69,5 +69,8 @@ public interface fetchdataStartup extends JpaRepository<StartupModel,String> {
     @Query(value="UPDATE `startup` SET `Password`=? WHERE Email=?", nativeQuery=true)
     void updatePassword(String password,String email);
 
-   
+    @Transactional
+    @Modifying
+    @Query(value="SELECT `Email`, `StartupName`, `video` FROM `startup` WHERE time<CURRENT_DATE LIMIT 5", nativeQuery=true)
+    List<Map<String,Object>> successCompanies();
 }
