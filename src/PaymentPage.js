@@ -1,3 +1,4 @@
+
 import { InputText } from "primereact/inputtext";
 import "./PaymentPage.css";
 import React,{useState,useRef,useEffect} from 'react';
@@ -257,3 +258,4 @@ disabled={Number(quantity)>(((((sData.percentOffer*sData.totalValuation)/100)-da
 }
 
 export default PaymentPage;
+
