@@ -12,112 +12,75 @@ import Shome from './Shome'
 import SEdit from './SEdit';
 import SList from './SList'
 import SDetails from './SDetails'
+import PaymentPage from './PaymentPage'
+import MyInvestmentsPage from './MyInvestmentsPage'
+import Footer from './Footer'
 function App() {
   const [page,changePage]=useState("home");
-  const [sData,changeSName]=useState({
-    email: 'scrubdaddy@gmail.com',
-        password: 'scrubdaddy@123',
-            startUpName: 'Scrub Daddy',
-                year: '01/01/2012',
-                    vision: ' To provide and uplift the average Filipino with fun and innovative cleaning solutions through Scrub Daddys unique products',
-                        description: 'Scrub Daddy makes high-performance cleaning products by combining exclusive materials with fun, functional designs.',
-                            city: 'Pennsauken',
-                                state: 'New Jersey',
-                                    address1: 'Scrub Daddy Inc. 1700 Suckle Hwy',
-                                        address2: ' Pennsauken, New Jersey 08110.',
-                                            phNumber: '8443572782',
-                                                country: 'USA',
-                                                    category: 'Household',
-                                                        productDescription: " Our broad range of products combine ergonomic design with innovative technologies to deliver superior cleaning power. Our texture changing non-toxic and scratch-free smiling scrubbers are the smart solution for kitchen and bathroom cleaning. Odor resistant and dual-use sponges and scouring pads are perfect for delicate applications as well as heavy-duty jobs. Eraser Daddy brightens the surfaces around your home in seconds while far outlasting competeing eraser pads. The Scrub Daddy family can handle any cleaning job around your home with a smile",
-                                                            aboutFounders: 'Aaron Krause',
-                                                                revenue: "120000",
-                                                                    monthlySales: { "jan": "10200", "feb": "11300" },
-    yealyBreakUp: { "2015": "25000","2016": "30000","2017": "44000", "2018": "60000","2019": "63000", "2020": "90000","2021": "93000", "2022": "120000" },
-    percentOffer: "10",
-        totalValuation: "1000000",
-            costPerBit: "50",
-                time: "60 days",
-    priorInvestment: "Bootstrap",
-        video: "https://youtu.be/fyg-yYiDJ2M",
-            totalBits: 2000,
-            anyCashBurn:"No",
-                        cashBurn:"0",
-                        grossProfit:48,
-                        netProfit:22,
-                        equityWithFounders:100,
-                        bank:'Bank Of America',
-                        bankAccount:'12345678901',
-                last3MonthsRevenue: [
-                    { month: 'Dec', revenue: 10200 },
-                    { month: 'Jan', revenue: 8700 },
-                    { month: 'Feb', revenue: 7300 }
-                ],
-                    investors: [
-                        {
-                            investor: 'Sam',
-                            investment: '$500',
-                            date: '12/25/2023'
-                        },
-                        {
-                            investor: 'Jhon',
-                            investment: '$4000',
-                            date: '01/21/2023'
-                        },
-      {
-                            investor: 'Katy',
-                            investment: '$3000',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Frank Jr',
-                            investment: '$2200',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'chadler',
-                            investment: '$7500',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Rachel',
-                            investment: '$2750',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'monica',
-                            investment: '$5500',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Joey',
-                            investment: '$6650',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Journey Ayers',
-                            investment: '$11000',
-                            date: '02/17/2023'
-                        },
-      {
-                            investor: 'Damion Livingston',
-                            investment: '$1650',
-                            date: '02/17/2023'
-                        }]});
+  const [startUp,changeStartUp]=useState("");
+  const [investor,changeInvestor]=useState("");
+  const [investments,setInvestments]=useState([]);
+  const [Cinvestments,setCinvestments]=useState([]);
+  const [sData,changeSName]=useState({vision:"",description:"",aboutFounders:"",productDescription:""});
+ // const successList=[{startUpName:"Scrub Daddy",video:"https://youtu.be/fyg-yYiDJ2M",fund:60000,time:"300 days"},{startUpName:"cupbod",video:"https://youtu.be/mKlZ7rtiPbY",fund:50000,time:"250 days"},{startUpName:"Bombas",video:"https://youtu.be/qT66d_PRR6U",fund:64000,time:"350 days"},{startUpName:"Pizza Cup Cake",video:"https://youtu.be/7-1EEwPQ_38",fund:40000,time:"300 days"},{startUpName:"Smart Soda",video:"https://www.youtube.com/watch?v=u3jhmaeEJbI",fund:30000,time:"150 days"}];
+  const [successList,setSuccessList]=useState([]);
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://52.207.171.26:8081/getSuccessList',{
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const json = await response.json();
+          console.log(json)
+        setSuccessList(json);
+         console.log(sData);
+          
+
+          
+        } else {
+          const text = await response.text();
+          
+          
+        }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    
+    fetchData();
+  }, []);
+  
   return (
   <div >
     <Router>
     <Routes>
-    <Route path='/' element={ < Header page={page} changePage={changePage} sData={sData} changeSName={changeSName} />}/>
-    <Route path='/home' element={ < Header page={page} changePage={changePage} sData={sData} changeSName={changeSName}/>}/>
-    <Route path='/ihome' element={<Ihome page={page} changePage={changePage} sData={sData} changeSName={changeSName}/>}/>
-    <Route path='/shome' element={<Shome  page={page} changePage={changePage} sData={sData} changeSName={changeSName}/> }/>
-    <Route path='/sDetails' element={<SDetails  page={page} changePage={changePage} sData={sData} changeSName={changeSName}/> }/>
-    <Route path="/sign-in" element={<Login page={page} changePage={changePage}/>} />
+    <Route path='/' element={< Header page={page} changePage={changePage} sData={sData} changeSName={changeSName} successList={successList}/>}/>
+    <Route path='/home' element={ < Header page={page} changePage={changePage} sData={sData} changeSName={changeSName} successList={successList}/>}/>
+    <Route path='/ihome' element={<Ihome page={page} changePage={changePage} sData={sData} changeSName={changeSName} investor={investor} changeInvestor={changeInvestor} investments={investments} setInvestments={setInvestments} successList={successList} Cinvestments={Cinvestments} setCinvestments={setCinvestments}/>}/>
+    <Route path='/shome' element={<Shome  page={page} changePage={changePage} sData={sData} changeSName={changeSName} startUp={startUp} changeStartUp={changeStartUp}/> }/>
+    <Route path='/sDetails' element={<SDetails  page={page} changePage={changePage} sData={sData} changeSName={changeSName} startUp={startUp}/> }/>
+    <Route path="/sign-in" element={<Login page={page} changePage={changePage} startUp={startUp} changeStartUp={changeStartUp} investor={investor} changeInvestor={changeInvestor}/>} />
     <Route path="/sign-up" element={<SignUp page={page} changePage={changePage}/>} />
     <Route path="/profile" element={<SEdit page={page} changePage={changePage} sData={sData} changeSName={changeSName}/>} />
     <Route path="/startups" element={<SList page={page}  changePage={changePage} sData={sData} changeSName={changeSName}/>} />
+    <Route path="/payment" element={<PaymentPage page={page}  changePage={changePage} sData={sData} changeSName={changeSName} investor={investor} />} />
+    <Route path="/history" element={<MyInvestmentsPage page={page}  changePage={changePage} sData={sData} changeSName={changeSName} investor={investor} changeInvestor={changeInvestor} investments={investments} Cinvestments={Cinvestments} setCinvestments={setCinvestments}/>} />
+
     </Routes>
     </Router>
+    <footer style={{marginTop:"150px"}}>
+      <Footer/>
+    </footer>
   </div>);
 }
 export default App
