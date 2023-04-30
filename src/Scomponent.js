@@ -11,16 +11,21 @@ function extractVideoId(url) {
   
 
 const Scomponent = (props) => {
-    const {item,i,sData, changeSName,page,changePage}=props;
+    const {item,i,sData, changeSName,page,changePage,access}=props;
     console.log(item)
     const a=extractVideoId(item.video)
     const navigate=useNavigate();
-    const handleInvest=(e)=>{
+    const handleInvest = (e) => {
       console.log(e);
-      try{
-      changePage('ihome')
-      changeSName(e);
-      navigate('/sDetails')
+      try {
+          if (access == true) {
+              alert("Profile Incomplete");
+          }
+          else {
+              changePage('ihome')
+              changeSName(e);
+              navigate('/sDetails')
+          }
       }
       catch(e){
         navigate('/sign-in')
